@@ -7,6 +7,7 @@ import {
     Box,
     TextField,
     Chip,
+    Switch,
 } from "@mui/material"
 import {useSelector, useDispatch} from 'react-redux';
 import { Upload, Check } from "@mui/icons-material";
@@ -69,6 +70,17 @@ export default function Settings(){
     const [accountDraft, setAccountDraft] = useState({ username: "", email: "" });
     const [savingAccount, setSavingAccount] = useState(false);
     const [isPasswordEditing, setIsPasswordEditing] = useState(false);
+    const [oldPassword, setOldPassword] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [savingPassword, setSavingPassword] = useState(false);
+    const [notificationSettings, setNotificationSettings] = useState({
+        inApp: true,
+        email: true,
+        marketing: false,
+    });
+
+
 
     const toggleCategory = (categoryId) => {
         if(selectedCategoryIds.includes(categoryId)){
@@ -128,9 +140,16 @@ export default function Settings(){
     }
 
     const handlePasswordSubmit = () => {
-        
+
     }
 
+    const handleCancelPasswordEdit = () => {
+        setIsPasswordEditing(false);
+    }
+
+    const updateNotif = () => {
+
+    }
 
     return (
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
@@ -382,15 +401,125 @@ export default function Settings(){
                             </Box>
                             : 
                             <Box component="form" onSubmit={handlePasswordSubmit} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-
+                                <TextField
+                                    label="Current password"
+                                    type="password"
+                                    fullWidth
+                                    size="small"
+                                    required
+                                    value={oldPassword}
+                                    onChange={(e) => setOldPassword(e.target.value)}
+                                />
+                                <TextField
+                                    label="New password"
+                                    type="password"
+                                    fullWidth
+                                    size="small"
+                                    required
+                                    value={newPassword}
+                                    onChange={(e) => setNewPassword(e.target.value)}
+                                />
+                                <TextField
+                                    label="Confirm new password"
+                                    type="password"
+                                    fullWidth
+                                    size="small"
+                                    required
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                />
+                                <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
+                                    <Button
+                                        variant="outlined"
+                                        onClick={handleCancelPasswordEdit}
+                                        disabled={savingPassword}
+                                        sx={{ textTransform: "none" }}
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        type="submit"
+                                        variant="contained"
+                                        disabled={savingPassword}
+                                        sx={{
+                                            bgcolor: "primary.main",
+                                            color: "primary.contrastText",
+                                            textTransform: "none",
+                                            "&:hover": { bgcolor: "primary.dark" },
+                                        }}
+                                    >
+                                        Save Changes
+                                    </Button>
+                                </Box>
                             </Box>
                     }
                 </Box>
-
             </Paper>
-
-
-
+            <Paper sx={{ p: 3 }}>
+                <Typography variant="h6" sx={{ fontWeight: 600, color: "text.primary", mb: 0.5 }}>
+                    Notification Preferences
+                </Typography>
+                <Typography variant="body2" sx={{ color: "text.secondary", mb: 3 }}>
+                    Choose how you want to be notified about updates
+                </Typography>
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <Box>
+                            <Typography variant="body1" sx={{ fontWeight: 500, color: "text.primary" }}>
+                                In-App Notifications
+                            </Typography>
+                            <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                                Receive notifications while using the app
+                            </Typography>
+                        </Box>
+                        <Switch
+                            checked={notificationSettings.inApp}
+                            onChange={(e) => {
+                                const val = e.target.checked;
+                                setNotificationSettings((s) => ({ ...s, inApp: val }));
+                                updateNotif({ in_app_enabled: val });
+                            }}
+                        />
+                    </Box>
+                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <Box>
+                            <Typography variant="body1" sx={{ fontWeight: 500, color: "text.primary" }}>
+                                Email Notifications
+                            </Typography>
+                            <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                                Get important updates via email
+                            </Typography>
+                        </Box>
+                        <Switch
+                            checked={notificationSettings.email}
+                            onChange={(e) => {
+                                const val = e.target.checked;
+                                setNotificationSettings((s) => ({ ...s, email: val }));
+                                updateNotif({ email_enabled: val });
+                            }}
+                        />
+                    </Box>
+                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <Box>
+                            <Typography variant="body1" sx={{ fontWeight: 500, color: "text.primary" }}>
+                                Marketing Emails
+                            </Typography>
+                            <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                                Receive news, tips, and special offers
+                            </Typography>
+                        </Box>
+                        <Switch
+                            checked={notificationSettings.marketing}
+                            onChange={(e) => {
+                                const val = e.target.checked;
+                                setNotificationSettings((s) => ({ ...s, marketing: val }));
+                                // server uses "opt-out"
+                                updateNotif({ marketing_opt_out: !val });
+                            }}
+                        />
+                    </Box>
+                </Box>
+            </Paper>
         </Box>
     )
 }
