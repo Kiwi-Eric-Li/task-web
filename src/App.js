@@ -2,6 +2,7 @@ import {BrowserRouter, Routes, Route, Navigate} from 'react-router-dom'
 
 import DashboardIndex from "./components/dashboard/index"
 import Register from "./components/login/Register"
+import Login from "./components/login"
 import ForgetPassword from './components/login/ForgetPassword';
 import TermsMain from './components/dashboard/TermsMain';
 import PrivacyMain from './components/dashboard/PrivacyMain';
@@ -21,6 +22,7 @@ export default function ResponsiveAppBar() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Navigate to="/task/index" />} replace/>
+        <Route path="/login" element={<Login />} replace/>
         <Route path="/register" element={<Register />} replace/>
         <Route path="/forgot-password" element={<ForgetPassword />} replace/>
         <Route path="/terms" element={<TermsMain />} replace/>

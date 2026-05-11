@@ -42,7 +42,7 @@ service.interceptors.response.use(
         // 没有 refreshToken
         if(!refreshToken){
             tokenService.clear();
-            window.location.href = "/";
+            window.location.href = "/login";
             return Promise.reject("No refresh token, logout directly.");
         }
 
@@ -75,7 +75,7 @@ service.interceptors.response.use(
         }catch(err){
             // refresh 失败，强制登录
             tokenService.clear();
-            window.location.href = "/";
+            window.location.href = "/login";
             return Promise.reject(err);
         }finally{
             isRefreshing = false;

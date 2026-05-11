@@ -1,4 +1,4 @@
-import {useState} from 'react'
+import {useState, useEffect} from 'react'
 import {useDispatch} from 'react-redux';
 import {Link} from "react-router-dom";
 import {
@@ -28,6 +28,7 @@ import PlaceOutlined from "@mui/icons-material/PlaceOutlined";
 
 import theme from "../../utils/theme"
 import {setActiveRole} from '../../store/modules/activeRoleReducer'
+import request from "../../utils/request"
 
 const MAX_TITLE_LENGTH = 80
 
@@ -39,13 +40,7 @@ export default function SearchTask(){
     const [category, setCategory] = useState("");
     const [skill, setSkill] = useState("");
     const [location, setLocation] = useState("");
-    const [allCategories, setAllCategories] = useState([
-        {id: 1, name: "Administrative Services"},
-        {id: 2, name: "Alteration Services"},
-        {id: 3, name: "Appliance Installation"},
-        {id: 4, name: "Appliance Repairs"},
-        {id: 5, name: "Appliances Services"}
-    ]);
+    const [allCategories, setAllCategories] = useState([]);
 
     const handleRole = (val) => {
         setRole(val);
@@ -56,6 +51,21 @@ export default function SearchTask(){
         e.preventDefault();
         console.log("<<<<<<<<<<<<");
     }
+
+    useEffect(() => {
+
+        async function fetchCategories(){
+            try{
+                const taskCategories = await request.get("/task-category");
+                setAllCategories(taskCategories);
+            } catch (err) {
+                console.error("Failed to fetch task categories", err);
+            }
+        }
+
+        fetchCategories();
+    }, []);
+
 
     return (
         <Box sx={{
@@ -171,7 +181,7 @@ export default function SearchTask(){
                                             {
                                                 allCategories.map((item, index) => {
                                                     return (
-                                                        <MenuItem key={item.id} value={item.id}>{item.name}</MenuItem>
+                                                        <MenuItem key={item.id} value={item.id}>{item.title}</MenuItem>
                                                     )
                                                 })
                                             }
@@ -221,7 +231,7 @@ export default function SearchTask(){
                                             {
                                                 allCategories.map((item, index) => {
                                                     return (
-                                                        <MenuItem key={item.id} value={item.id}>{item.name}</MenuItem>
+                                                        <MenuItem key={item.id} value={item.id}>{item.title}</MenuItem>
                                                     )
                                                 })
                                             }
