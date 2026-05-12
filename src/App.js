@@ -14,6 +14,19 @@ import TaskProfile from "./components/task_profile"
 import TaskDashboard from "./components/task_dashboard"
 import TaskIndex from "./components/dashboard/TaskIndex"
 import TaskList from "./components/task_list"
+import TaskPublish from "./components/task_dashboard/Publish"
+import {tokenService} from "./utils/token"
+
+const PrivateRoute = ({ children }) => {
+  const token = tokenService.getAccessToken();
+  
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+};
+
 
 
 export default function ResponsiveAppBar() {
@@ -29,6 +42,11 @@ export default function ResponsiveAppBar() {
         <Route path="/privacy" element={<PrivacyMain />} replace/>
         <Route path="/task" element={<DashboardIndex />} replace>
           <Route path="index" element={<TaskIndex />} />
+          <Route path="publish" element={
+            <PrivateRoute>
+              <TaskPublish />
+            </PrivateRoute>
+          } />
           <Route path="task-list" element={<TaskList />} />
           <Route path="profile/:userid" element={<TaskProfile />} />
           <Route path="dashboard" element={<TaskDashboard />} />

@@ -111,6 +111,8 @@ export default function DashboardIndex(){
                         <Button 
                         variant="contained" 
                         startIcon={<PostAddIcon />} 
+                        component={Link} 
+                        to="/task/publish"
                         sx={{ 
                             borderRadius: '50px', 
                             textTransform: 'none', 
