@@ -26,7 +26,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
-
+import dayjs, { Dayjs } from "dayjs";
 
 
 
@@ -39,6 +39,15 @@ export default function TaskPublish(){
     const [submitting, setSubmitting] = useState(false);
     const [activeStep, setActiveStep] = useState(0);
     const [isSuccess, setIsSuccess] = useState(false);
+    const [selectedDate, setSelectedDate] = useState(null);
+    const [selectedTime, setSelectedTime] = useState(null);
+    const [pricingType, setPricingType] = useState(null);
+    const [estimatedHours, setEstimatedHours] = useState("");
+    const [budget, setBudget] = useState("");
+
+    const today = dayjs().startOf("day");
+    const maxFuture = today.add(6, "month");
+   
 
     const steps = [
         { label: "Basic Info", icon: AssignmentOutlined },
@@ -69,11 +78,14 @@ export default function TaskPublish(){
     };
 
     const handleBack = () => {
-
+        setActiveStep(activeStep - 1);
     }
 
     const handleNext = () => {
+        // 1. validate required item
 
+        // 2. activeStep++
+        setActiveStep(activeStep + 1);
     }
 
     const handleSubmit = () => {
@@ -178,6 +190,159 @@ export default function TaskPublish(){
                                         </Box>
                                     </Box>
                                 )}
+
+                                {
+                                    activeStep === 1 && (
+                                        <Box
+                                            sx={{
+                                                width: "100%",
+                                                maxWidth: 900,
+                                                mx: "auto",
+                                                p: 3,
+                                                bgcolor: theme.palette.background.paper,
+                                            }}>
+                                                <Box display="flex" alignItems="center" mb={2}>
+                                                    <EventAvailable sx={{ color: theme.palette.primary.main, fontSize: 28 }} />
+                                                    <Typography variant="h6" fontWeight={600} ml={1}>
+                                                        Schedule & Budget
+                                                    </Typography>
+                                                </Box>
+                                                <Typography variant="body2" color="text.secondary" mb={3}>
+                                                    Pick any date/time within the next 6 months. Your task closes 30 days after the chosen start.
+                                                </Typography>
+                                                <Box
+                                                    sx={{
+                                                            display: "grid",
+                                                            gridTemplateColumns: {
+                                                            xs: "1fr",
+                                                            md: "1fr 1fr",
+                                                        },
+                                                        rowGap: 3,
+                                                        columnGap: 2,
+                                                    }}>
+                                                    {/* Preferred start date */}
+                                                    <Box>
+                                                        <Typography variant="caption" color="text.secondary" gutterBottom>
+                                                            Preferred start date
+                                                        </Typography>
+                                                        <DatePicker
+                                                            label="Date *"
+                                                            value={selectedDate ? dayjs(selectedDate) : null}
+                                                            minDate={today}
+                                                            maxDate={maxFuture}
+                                                            onChange={(newValue) => setSelectedDate(newValue)}
+                                                            slotProps={{
+                                                                textField: {
+                                                                    fullWidth: true,
+                                                                    sx: {
+                                                                        bgcolor: theme.palette.background.paper,
+                                                                        mt: 2,
+                                                                        '& .MuiOutlinedInput-notchedOutline': { borderColor: 'black' },
+                                                                        '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'black' },
+                                                                        '& .Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'black' },
+                                                                    },
+                                                                },
+                                                            }}
+                                                        />
+                                                    </Box>
+                                                    {/* Earliest convenient time */}
+                                                    <Box>
+                                                        <Typography variant="caption" color="text.secondary" gutterBottom>
+                                                            Earliest convenient time
+                                                        </Typography>
+                                                        <TimePicker
+                                                            label="Time *"
+                                                            ampm={false}
+                                                            value={selectedTime}
+                                                            onChange={(newValue) => {
+                                                                setSelectedTime(newValue);
+                                                            }}
+                                                            slotProps={{
+                                                                textField: {
+                                                                    fullWidth: true,
+                                                                    sx: {
+                                                                        bgcolor: theme.palette.background.paper,
+                                                                        mt: 2,
+                                                                        '& .MuiOutlinedInput-notchedOutline': { borderColor: 'black' },
+                                                                        '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'black' },
+                                                                        '& .Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                                            borderColor: 'black',
+                                                                        },
+                                                                    },
+                                                                },
+                                                            }}
+                                                        />
+                                                    </Box>
+                                                    
+                                                    {/* Pricing type */}
+                                                    <Box>
+                                                        <Typography variant="caption" color="text.secondary" gutterBottom>
+                                                            How will you pay?
+                                                        </Typography>
+                                                        <TextField
+                                                            select
+                                                            label="Pricing type *"
+                                                            SelectProps={{ native: true }}
+                                                            fullWidth
+                                                            sx={{ bgcolor: theme.palette.background.paper, mt: 2 }}
+                                                            value={pricingType ?? "Fixed"}
+                                                            onChange={(e) => setPricingType(e.target.value)}
+                                                        >
+                                                            <option value="Fixed">Fixed</option>
+                                                            <option value="Hourly">Hourly</option>
+                                                        </TextField>
+                                                    </Box>
+                                                    
+                                                    {/* Estimated hours */}
+                                                    <Box>
+                                                        <Typography variant="caption" color="text.secondary" gutterBottom>
+                                                            Estimated hours (optional)
+                                                        </Typography>
+                                                        <TextField
+                                                            label="Estimated hours (optional)"
+                                                            fullWidth
+                                                            type="text"
+                                                            value={estimatedHours}
+                                                            onChange={(e) => {
+                                                                const cleaned = e.target.value.replace(/[^\d]/g, "")
+                                                                setEstimatedHours(cleaned);
+                                                            }}
+                                                            onKeyDown={(e) => {
+                                                                const allowed = ["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab", "Home", "End"]
+                                                                if (!/^\d$/.test(e.key) && !allowed.includes(e.key)) e.preventDefault()
+                                                            }}
+                                                            sx={{ bgcolor: theme.palette.background.paper, mt: 2 }}
+                                                        />
+                                                    </Box>
+                                                    
+                                                    {/* Budget (optional) */}
+                                                    <Box>
+                                                        <Typography variant="caption" color="text.secondary" gutterBottom>
+                                                            Leave blank to let taskers quote
+                                                        </Typography>
+                                                        <TextField
+                                                            label="Budget (optional)"
+                                                            fullWidth
+                                                            type="text"                                    
+                                                            value={budget}
+                                                            onChange={(e) => {
+                                                                const cleaned = e.target.value.replace(/[^\d]/g, "");
+                                                                setBudget(cleaned);
+                                                            }}
+                                                            onKeyDown={(e) => {
+                                                                const allowed = ["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab", "Home", "End"];
+                                                                if (!/^\d$/.test(e.key) && !allowed.includes(e.key)) e.preventDefault();
+                                                            }}
+                                                            inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
+                                                            sx={{ bgcolor: theme.palette.background.paper, mt: 2 }}
+                                                        />
+                                                    </Box>
+                                                    
+                                                    
+                                                </Box>
+                                        </Box>
+                                    )
+                                }
 
 
                                 {/* ---- buttons ---- */}
