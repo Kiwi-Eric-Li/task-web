@@ -29,7 +29,7 @@ import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import dayjs, { Dayjs } from "dayjs";
 
 
-
+import TaskLocationInput from "./TaskLocationInput";
 import theme from "../../utils/theme"
 
 const MAX_TITLE_LENGTH = 80;
@@ -39,6 +39,7 @@ export default function TaskPublish(){
     const [submitting, setSubmitting] = useState(false);
     const [activeStep, setActiveStep] = useState(0);
     const [isSuccess, setIsSuccess] = useState(false);
+    const [taskType, setTaskType] = useState('offline');
     const [selectedDate, setSelectedDate] = useState(null);
     const [selectedTime, setSelectedTime] = useState(null);
     const [pricingType, setPricingType] = useState(null);
@@ -154,7 +155,9 @@ export default function TaskPublish(){
                                                     select
                                                     label="Task Type *"
                                                     SelectProps={{ native: true }}
-                                                    fullWidth
+                                                    fullWidth 
+                                                    value={taskType} 
+                                                    onChange={(e) => setTaskType(e.target.value)}
                                                     sx={{ bgcolor: theme.palette.background.paper, mt: 2 }}>
                                                     <option value="offline">On-site</option>
                                                     <option value="remote">Remote</option>
@@ -338,7 +341,11 @@ export default function TaskPublish(){
                                                         />
                                                     </Box>
                                                     
-                                                    
+                                                    {/* Location (offline only) */}
+                                                    {taskType === 'offline' && (
+                                                        <TaskLocationInput />
+                                                    )}
+
                                                 </Box>
                                         </Box>
                                     )
