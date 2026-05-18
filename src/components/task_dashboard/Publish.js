@@ -17,7 +17,7 @@ import {
     IconButton,
     Dialog,
     DialogContent,
-    
+
 } from '@mui/material';
 import {
     AssignmentOutlined,
@@ -59,8 +59,16 @@ export default function TaskPublish(){
     const [activeStep, setActiveStep] = useState(0);
     const [isSuccess, setIsSuccess] = useState(false);
     const [taskType, setTaskType] = useState('offline');
+    const [taskTitle, setTaskTitle] = useState('');
+    const [taskTitleError, setTaskTitleError] = useState('');
+    const [taskDescription, setTaskDescription] = useState('');
+    const [taskDescriptionError, setTaskDescriptionError] = useState('');
     const [selectedDate, setSelectedDate] = useState(null);
+    const [selectedDateError, setSelectedDateError] = useState('');
     const [selectedTime, setSelectedTime] = useState(null);
+    const [selectedTimeError, setSelectedTimeError] = useState('');
+    const [selectedSuburb, setSelectedSuburb] = useState("");
+    const [selectedSuburbError, setSelectedSuburbError] = useState('');
     const [pricingType, setPricingType] = useState(null);
     const [estimatedHours, setEstimatedHours] = useState("");
     const [budget, setBudget] = useState("");
@@ -69,6 +77,7 @@ export default function TaskPublish(){
     const [files, setFiles] = useState([]);
     const [fileError, setFileError] = useState(null);
     const [lightbox, setLightbox] = useState(null);
+
 
 
     const today = dayjs().startOf("day");
@@ -90,9 +99,6 @@ export default function TaskPublish(){
 
         fetchCategories();
     }, []);
-
-
-
 
     const steps = [
         { label: "Basic Info", icon: AssignmentOutlined },
@@ -122,21 +128,75 @@ export default function TaskPublish(){
         );
     };
 
+    const handleSuburbChange = (value) => {
+        setSelectedSuburb(value);
+        if (value) {
+            setSelectedSuburbError('');
+        }
+    }
+
     const handleBack = () => {
         setActiveStep(activeStep - 1);
     }
 
     const handleNext = () => {
         // 1. validate required item
+        if(activeStep === 0){
+            let flag = false;
+            if (!taskTitle.trim()) {
+                setTaskTitleError('Task Title is required');
+                flag = true;
+            } else {
+                setTaskTitleError('');
+            }
 
-        // 2. activeStep++
-        setActiveStep(activeStep + 1);
+            // 校验 Description
+            if (!taskDescription.trim()) {
+                setTaskDescriptionError('Description is required');
+                flag = true;
+            } else {
+                setTaskDescriptionError('');
+            }
+
+            if(!flag){
+                setActiveStep(activeStep + 1);
+            }
+            return;
+        }
+        // 第二步校验
+        if(activeStep === 1){
+            let flag = false;
+            // 校验 Date
+            if (!selectedDate) {
+                setSelectedDateError('Date is required');
+                flag = true;
+            } else {
+                setSelectedDateError('');
+            }
+
+            // 校验 Time
+            if (!selectedTime) {
+                setSelectedTimeError('Time is required');
+                flag = true;
+            } else {
+                setSelectedTimeError('');
+            }
+
+            // when taskType is offline, validate Suburb
+            if (taskType === 'offline' && !selectedSuburb) {
+                setSelectedSuburbError('Location is required for on-site tasks');
+                flag = true;
+            } else {
+                setSelectedSuburbError('');
+            }
+
+            if(!flag){
+                setActiveStep(activeStep + 1);
+            }
+            return;
+        }
+
     }
-
-    const handleSubmit = () => {
-
-    }
-
     const handleFilesChange = (e) => {
         const picked = Array.from(e.target.files || []);
         if (picked.length === 0) return;
@@ -166,6 +226,9 @@ export default function TaskPublish(){
 
     const removeFile = (url) => setFiles((p) => p.filter((f) => f.url !== url));
 
+    const handleSubmit = () => {
+
+    }
 
     return (
         <ThemeProvider theme={theme}>
@@ -230,7 +293,12 @@ export default function TaskPublish(){
                                                     SelectProps={{ native: true }}
                                                     fullWidth 
                                                     value={taskType} 
-                                                    onChange={(e) => setTaskType(e.target.value)}
+                                                    onChange={(e) => {
+                                                        setTaskType(e.target.value);
+                                                        // 切换时清除 suburb 状态
+                                                        setSelectedSuburb(null);
+                                                        setSelectedSuburbError('');
+                                                    }}
                                                     sx={{ bgcolor: theme.palette.background.paper, mt: 2 }}>
                                                     <option value="offline">On-site</option>
                                                     <option value="remote">Remote</option>
@@ -245,6 +313,15 @@ export default function TaskPublish(){
                                                     label="Task Title *" 
                                                     inputProps={{ maxLength: MAX_TITLE_LENGTH }}
                                                     fullWidth
+                                                    value={taskTitle}
+                                                    onChange={(e) => {
+                                                        setTaskTitle(e.target.value);
+                                                        if (e.target.value.trim()) {
+                                                            setTaskTitleError('');
+                                                        }
+                                                    }}
+                                                    error={!!taskTitleError}
+                                                    helperText={taskTitleError}
                                                     sx={{ bgcolor: theme.palette.background.paper, mt: 2 }}
                                                 />
                                             </Box>
@@ -261,6 +338,15 @@ export default function TaskPublish(){
                                                 fullWidth
                                                 multiline
                                                 rows={6}
+                                                value={taskDescription}
+                                                onChange={(e) => {
+                                                    setTaskDescription(e.target.value);
+                                                    if (e.target.value.trim()) {
+                                                        setTaskDescriptionError('');
+                                                    }
+                                                }}
+                                                error={!!taskDescriptionError}
+                                                helperText={taskDescriptionError}
                                                 sx={{ bgcolor: theme.palette.background.paper, mt: 2 }}    
                                             />
                                         </Box>
@@ -306,10 +392,17 @@ export default function TaskPublish(){
                                                             value={selectedDate ? dayjs(selectedDate) : null}
                                                             minDate={today}
                                                             maxDate={maxFuture}
-                                                            onChange={(newValue) => setSelectedDate(newValue)}
+                                                            onChange={(newValue) => {
+                                                                setSelectedDate(newValue);
+                                                                if (newValue) {
+                                                                    setSelectedDateError('');
+                                                                }
+                                                            }}
                                                             slotProps={{
                                                                 textField: {
                                                                     fullWidth: true,
+                                                                    error: !!selectedDateError,
+                                                                    helperText: selectedDateError,
                                                                     sx: {
                                                                         bgcolor: theme.palette.background.paper,
                                                                         mt: 2,
@@ -332,10 +425,15 @@ export default function TaskPublish(){
                                                             value={selectedTime}
                                                             onChange={(newValue) => {
                                                                 setSelectedTime(newValue);
+                                                                if (newValue) {
+                                                                    setSelectedTimeError('');
+                                                                }
                                                             }}
                                                             slotProps={{
                                                                 textField: {
                                                                     fullWidth: true,
+                                                                    error: !!selectedTimeError,
+                                                                    helperText: selectedTimeError,
                                                                     sx: {
                                                                         bgcolor: theme.palette.background.paper,
                                                                         mt: 2,
@@ -416,7 +514,11 @@ export default function TaskPublish(){
                                                     
                                                     {/* Location (offline only) */}
                                                     {taskType === 'offline' && (
-                                                        <TaskLocationInput />
+                                                        <TaskLocationInput
+                                                            selectedSuburb={selectedSuburb}
+                                                            onPlaceSelect={handleSuburbChange}
+                                                            error={selectedSuburbError}
+                                                        />
                                                     )}
 
                                                 </Box>
