@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 
 import {
     Box,
@@ -12,7 +12,12 @@ import {
     StepLabel,
     TextField,
     Button,
-
+    Chip,
+    Autocomplete,
+    IconButton,
+    Dialog,
+    DialogContent,
+    
 } from '@mui/material';
 import {
     AssignmentOutlined,
@@ -31,9 +36,23 @@ import dayjs, { Dayjs } from "dayjs";
 
 import TaskLocationInput from "./TaskLocationInput";
 import theme from "../../utils/theme"
+import request from "../../utils/request"
+import {
+  DEFAULT_MAX_IMAGE_MB,
+  DEFAULT_MAX_VIDEO_MB,
+  validateMediaFiles,
+  summarizeRejections,
+  describeMediaLimits,
+
+} from "../../utils/media";
 
 const MAX_TITLE_LENGTH = 80;
 const MAX_DESCRIPTION_LENGTH = 5000;
+const UPLOAD_LIMITS = {
+    maxTotal: 5,
+    maxImageMB: DEFAULT_MAX_IMAGE_MB,
+    maxVideoMB: DEFAULT_MAX_VIDEO_MB,
+};
 
 export default function TaskPublish(){
     const [submitting, setSubmitting] = useState(false);
@@ -45,10 +64,35 @@ export default function TaskPublish(){
     const [pricingType, setPricingType] = useState(null);
     const [estimatedHours, setEstimatedHours] = useState("");
     const [budget, setBudget] = useState("");
+    const [catList, setCatList] = useState([]);
+    const [selected, setSelected] = useState([]);
+    const [files, setFiles] = useState([]);
+    const [fileError, setFileError] = useState(null);
+    const [lightbox, setLightbox] = useState(null);
+
 
     const today = dayjs().startOf("day");
     const maxFuture = today.add(6, "month");
-   
+    
+    useEffect(() => {
+        // Fetch category list from backend
+        const fetchCategories = async () => {
+            try {
+                // Simulate an API call
+                const response = await request.get("/task-category");
+                if(response.code === 0){
+                    setCatList(response.data);
+                }
+            } catch (error) {
+                console.error("Error fetching categories:", error);
+            }
+        };
+
+        fetchCategories();
+    }, []);
+
+
+
 
     const steps = [
         { label: "Basic Info", icon: AssignmentOutlined },
@@ -92,6 +136,35 @@ export default function TaskPublish(){
     const handleSubmit = () => {
 
     }
+
+    const handleFilesChange = (e) => {
+        const picked = Array.from(e.target.files || []);
+        if (picked.length === 0) return;
+
+        const { accepted, rejected } = validateMediaFiles(
+            picked,
+            files.length,
+            UPLOAD_LIMITS
+        );
+
+        if (rejected.length) {
+            const message = summarizeRejections(rejected);
+            setFileError(message);
+        } else {
+            setFileError(null);
+        }
+
+
+        if (accepted.length) {
+            const previews = accepted.map((file) => ({ file, url: URL.createObjectURL(file) }));
+            setFiles((prev) => [...prev, ...previews]);
+        }
+
+        // Reset input so selecting the same file again triggers onChange
+        e.currentTarget.value = "";
+    };
+
+    const removeFile = (url) => setFiles((p) => p.filter((f) => f.url !== url));
 
 
     return (
@@ -350,6 +423,134 @@ export default function TaskPublish(){
                                         </Box>
                                     )
                                 }
+                                {
+                                    activeStep === 2 && (
+                                        <Box 
+                                            sx={{
+                                                width: "100%",
+                                                maxWidth: 900,
+                                                mx: "auto",
+                                                p: 3,
+                                                bgcolor: theme.palette.background.paper,
+                                            }}>
+                                            
+                                            <Box display="flex" alignItems="center" mb={2}>
+                                                <CategoryIcon sx={{ color: theme.palette.primary.main, fontSize: 28 }} />
+                                                <Typography variant="h6" fontWeight={600} ml={1}>
+                                                    Categories & Files
+                                                </Typography>
+                                            </Box>
+                                            <Typography variant="body2" color="text.secondary" mb={3}>
+                                                Help us match the right taskers – pick at least one category.
+                                            </Typography>
+                                            <Autocomplete
+                                                multiple
+                                                options={catList}
+                                                getOptionLabel={(o) => o.title}
+                                                value={selected}
+                                                onChange={(event, newValue) => setSelected(newValue)}
+                                                renderTags={(value, getTagProps) =>
+                                                    value.map((option, index) => (
+                                                    <Chip
+                                                        {...getTagProps({ index })}
+                                                        key={option.id}
+                                                        color="primary"
+                                                        label={
+                                                        <Typography variant="body1">
+                                                            {option.title}
+                                                        </Typography>
+                                                        }
+                                                    />
+                                                    ))
+                                                }
+                                                renderInput={(params) => (
+                                                    <TextField
+                                                        {...params}
+                                                        label="Categories *"
+                                                        sx={{ bgcolor: theme.palette.background.paper, mt: 2 }}
+                                                    />
+                                                )}
+                                            />
+
+                                            <Box mb={2} sx={{mt: '20px'}}>
+                                                <Typography variant="caption" color="text.secondary" gutterBottom>
+                                                    Upload Images / Videos (max {UPLOAD_LIMITS.maxTotal})
+                                                </Typography>
+                                                <Button
+                                                    variant="outlined"
+                                                    component="label"
+                                                    sx={{ borderColor: theme.palette.primary.main, color: theme.palette.primary.main, textTransform: "none", ml: 1 }}
+                                                    disabled={files.length >= UPLOAD_LIMITS.maxTotal}>
+                                                    Select Files
+                                                    <input
+                                                        hidden
+                                                        multiple
+                                                        type="file"
+                                                        accept="image/*,video/*"        // gates picker UI
+                                                        onChange={handleFilesChange}
+                                                    />
+                                                </Button>
+                                                <Typography variant="caption" sx={{ display: "block", mt: 1 }} color="text.secondary">
+                                                    {describeMediaLimits(UPLOAD_LIMITS)}
+                                                </Typography>
+                                                {fileError && (
+                                                    <Typography variant="caption" color="error" sx={{ display: "block", whiteSpace: "pre-line", mt: 1 }}>
+                                                        {fileError}
+                                                    </Typography>
+                                                )}
+                                            </Box>
+                                            
+                                            {files.length > 0 && (
+                                                <Box display="flex" flexWrap="wrap" gap={2}>
+                                                    {files.map((f) => (
+                                                        <Box key={f.url} position="relative">
+                                                            {f.file.type.startsWith("image") ? (
+                                                                <img
+                                                                    src={f.url}
+                                                                    alt={f.file.name}
+                                                                    style={{
+                                                                        width: 120,
+                                                                        height: 120,
+                                                                        objectFit: "cover",
+                                                                        borderRadius: 8,
+                                                                        border: "1px solid #e0e0e0",
+                                                                        cursor: "pointer",
+                                                                    }}
+                                                                    onClick={() => setLightbox(f.url)}
+                                                                />
+                                                            ) : (
+                                                            <video
+                                                                src={f.url}
+                                                                style={{
+                                                                width: 120,
+                                                                height: 120,
+                                                                objectFit: "cover",
+                                                                borderRadius: 8,
+                                                                border: "1px solid #e0e0e0",
+                                                                cursor: "pointer",
+                                                                }}
+                                                                onClick={() => setLightbox(f.url)}
+                                                            />
+                                                            )}
+                                                            <IconButton
+                                                                size="small"
+                                                                onClick={() => removeFile(f.url)}
+                                                                sx={{
+                                                                    position: "absolute",
+                                                                    top: 2,
+                                                                    right: 2,
+                                                                    bgcolor: "rgba(0,0,0,0.6)",
+                                                                    color: "#fff",
+                                                                }}>
+                                                                <Close fontSize="small" />
+                                                            </IconButton>
+                                                        </Box>
+                                                    ))}
+                                                </Box>
+                                            )}
+                                        </Box>
+                                    )
+                                }
 
 
                                 {/* ---- buttons ---- */}
@@ -376,6 +577,14 @@ export default function TaskPublish(){
                                     )}
                                 </Box>
                             </CardContent>
+                            
+                            <Dialog open={!!lightbox} onClose={() => setLightbox(null)} maxWidth="md">
+                                <DialogContent sx={{ p: 0 }}>
+                                    {lightbox && (
+                                        <img src={lightbox} alt="preview" style={{ width: "100%" }} />
+                                    )}
+                                </DialogContent>
+                            </Dialog>
                         </LocalizationProvider>
                     </Card>
                 </Container>
