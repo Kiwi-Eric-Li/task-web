@@ -69,7 +69,7 @@ export default function TaskPublish(){
     const [selectedTimeError, setSelectedTimeError] = useState('');
     const [selectedSuburb, setSelectedSuburb] = useState("");
     const [selectedSuburbError, setSelectedSuburbError] = useState('');
-    const [pricingType, setPricingType] = useState(null);
+    const [pricingType, setPricingType] = useState("Fixed");
     const [estimatedHours, setEstimatedHours] = useState("");
     const [budget, setBudget] = useState("");
     const [catList, setCatList] = useState([]);
@@ -99,6 +99,18 @@ export default function TaskPublish(){
 
         fetchCategories();
     }, []);
+
+
+    useEffect(()=>{
+        if(activeStep === 2 && taskTitleError === '' && taskDescriptionError === '' && selectedDateError === '' && selectedTimeError === '' && selectedSuburbError === '' && selected.length){
+            setSubmitting(true);
+        }else{
+            setSubmitting(false);
+        }
+    }, [activeStep, taskTitleError, taskDescriptionError, selectedDateError, selectedTimeError, selectedSuburbError, selected]);
+
+
+
 
     const steps = [
         { label: "Basic Info", icon: AssignmentOutlined },
@@ -228,6 +240,22 @@ export default function TaskPublish(){
 
     const handleSubmit = () => {
 
+        console.log("<<<<<<<<<task-type======", taskType);
+        console.log("<<<<<<<<<task-title=====", taskTitle);
+        console.log("<<<<<<<<<description====", taskDescription);
+        console.log("<<<<<<<<<selectedDate===", selectedDate);
+        console.log("<<<<<<<<<selectedTime===", selectedTime);
+        console.log("<<<<<<<<<pricingType===", pricingType);
+        console.log("<<<<<<<<<estimatedHours=====", estimatedHours);
+        console.log("<<<<<<<<<budget=====", budget);
+        console.log("<<<<<<<<<selectedSuburb======", selectedSuburb);
+        console.log("<<<<<<<<<selected=========", selected);
+        console.log("<<<<<<<<<files============", files);
+
+
+        // request.post("/tasks", {}).then(res => {
+        //     console.log("res==========", res);
+        // })
     }
 
     return (
@@ -672,9 +700,9 @@ export default function TaskPublish(){
                                         <Button
                                         variant="contained"
                                         sx={{ bgcolor: theme.palette.primary.main }}
-                                        disabled={submitting || (activeStep === 2)}
+                                        disabled={!submitting && (activeStep === 2)}
                                         onClick={() => handleSubmit()}>
-                                            {submitting ? "Publishing…" : "Publish Task"}
+                                            Publish Task
                                         </Button>
                                     )}
                                 </Box>

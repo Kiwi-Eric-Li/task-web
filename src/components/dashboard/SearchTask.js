@@ -57,7 +57,9 @@ export default function SearchTask(){
         async function fetchCategories(){
             try{
                 const taskCategories = await request.get("/task-category");
-                setAllCategories(taskCategories);
+                if(taskCategories.code === 0){
+                    setAllCategories(taskCategories.data);
+                }
             } catch (err) {
                 console.error("Failed to fetch task categories", err);
             }
@@ -179,7 +181,7 @@ export default function SearchTask(){
                                             }}
                                         >
                                             {
-                                                allCategories.map((item, index) => {
+                                                allCategories.length && allCategories.map((item, index) => {
                                                     return (
                                                         <MenuItem key={item.id} value={item.id}>{item.title}</MenuItem>
                                                     )
@@ -229,7 +231,7 @@ export default function SearchTask(){
                                                 <em>All skills</em>
                                             </MenuItem>
                                             {
-                                                allCategories.map((item, index) => {
+                                                allCategories.length && allCategories.map((item, index) => {
                                                     return (
                                                         <MenuItem key={item.id} value={item.id}>{item.title}</MenuItem>
                                                     )
