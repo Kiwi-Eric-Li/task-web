@@ -238,24 +238,46 @@ export default function TaskPublish(){
 
     const removeFile = (url) => setFiles((p) => p.filter((f) => f.url !== url));
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
 
-        console.log("<<<<<<<<<task-type======", taskType);
-        console.log("<<<<<<<<<task-title=====", taskTitle);
-        console.log("<<<<<<<<<description====", taskDescription);
-        console.log("<<<<<<<<<selectedDate===", selectedDate);
-        console.log("<<<<<<<<<selectedTime===", selectedTime);
-        console.log("<<<<<<<<<pricingType===", pricingType);
-        console.log("<<<<<<<<<estimatedHours=====", estimatedHours);
-        console.log("<<<<<<<<<budget=====", budget);
-        console.log("<<<<<<<<<selectedSuburb======", selectedSuburb);
-        console.log("<<<<<<<<<selected=========", selected);
-        console.log("<<<<<<<<<files============", files);
+        // console.log("<<<<<<<<<task-type======", taskType);
+        // console.log("<<<<<<<<<task-title=====", taskTitle);
+        // console.log("<<<<<<<<<description====", taskDescription);
+        // console.log("<<<<<<<<<selectedDate===", selectedDate);
+        // console.log("<<<<<<<<<selectedTime===", selectedTime);
+        // console.log("<<<<<<<<<pricingType===", pricingType);
+        // console.log("<<<<<<<<<estimatedHours=====", estimatedHours);
+        // console.log("<<<<<<<<<budget=====", budget);
+        // console.log("<<<<<<<<<selectedSuburb======", selectedSuburb);
+        // console.log("<<<<<<<<<selected=========", selected);
+        // console.log("<<<<<<<<<files============", files);
 
+        console.log(selectedDate, dayjs(selectedDate), selectedDate.format("YYYY-MM-DD"))
+        console.log(selectedTime, dayjs(selectedTime), selectedTime.format("HH:mm:ss"));
 
-        // request.post("/tasks", {}).then(res => {
-        //     console.log("res==========", res);
-        // })
+        // upload file
+        if(files.length > 0){
+            const formData = new FormData();
+            files.forEach((f) => formData.append("files", f.file));
+        }
+        try{
+            // save task
+            const data = await request.post("/tasks", {
+                "task_type": taskType,
+                "title": taskTitle,
+                "description": taskDescription,
+                "schedule_time": selectedDate.format("YYYY-MM-DD") + "T" + selectedTime.format("HH:mm:ss"),
+                "expires_at": dayjs(selectedDate).add(30, "day").format("YYYY-MM-DD") + "T" + selectedTime.format("HH:mm:ss"),
+                "pricing_type": pricingType,
+                "estimated_hours": Number(estimatedHours),
+                "location": taskType === 'offline' ? selectedSuburb : "",
+                "categories": selected
+            });
+            console.log("create_task======data=====", data);
+        }catch(e){
+            console.error(e);
+        }
+        
     }
 
     return (
