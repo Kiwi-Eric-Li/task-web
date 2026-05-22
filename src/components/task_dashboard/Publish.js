@@ -77,6 +77,8 @@ export default function TaskPublish(){
     const [files, setFiles] = useState([]);
     const [fileError, setFileError] = useState(null);
     const [lightbox, setLightbox] = useState(null);
+    const [latitude, setLatitude] = useState(0);
+    const [longitude, setLongitude] = useState(0);
 
 
 
@@ -271,7 +273,10 @@ export default function TaskPublish(){
                 "pricing_type": pricingType,
                 "estimated_hours": Number(estimatedHours),
                 "location": taskType === 'offline' ? selectedSuburb : "",
-                "categories": selected
+                "categories": selected,
+                "budget": budget ? budget : null,
+                "latitude": latitude,
+                "longitude": longitude,
             });
             console.log("create_task======data=====", data);
         }catch(e){
@@ -565,6 +570,8 @@ export default function TaskPublish(){
                                                     {/* Location (offline only) */}
                                                     {taskType === 'offline' && (
                                                         <TaskLocationInput
+                                                            setLatitude={setLatitude}
+                                                            setLongitude={setLongitude}
                                                             selectedSuburb={selectedSuburb}
                                                             onPlaceSelect={handleSuburbChange}
                                                             error={selectedSuburbError}

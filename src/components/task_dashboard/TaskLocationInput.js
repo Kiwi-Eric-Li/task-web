@@ -3,7 +3,7 @@ import {Box, Typography, Autocomplete, TextField} from "@mui/material"
 
 import request from "../../utils/request"
 
-export default function TaskLocationInput({onPlaceSelect, error, selectedSuburb}){
+export default function TaskLocationInput({ setLatitude, setLongitude, onPlaceSelect, error, selectedSuburb}){
     const [options, setOptions] = useState([]);
     const [sessionId] = useState(() => crypto.randomUUID());
     const [loading, setLoading] = useState(false);
@@ -36,7 +36,9 @@ export default function TaskLocationInput({onPlaceSelect, error, selectedSuburb}
             const detailsResult = await request.get(`/place/details?place_id=${value.place_id}&session=${sessionId}`);
 
             if(detailsResult.code === 0){
-                const {suburb, city, postcode} = detailsResult.data;
+                const {suburb, city, postcode, latitude, longitude} = detailsResult.data;
+                setLatitude(latitude);
+                setLongitude(longitude);
                 onPlaceSelect?.([suburb, city, postcode].filter(Boolean).join(", "));
             }
         } catch(error) {
