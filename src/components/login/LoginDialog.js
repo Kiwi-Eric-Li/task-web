@@ -58,7 +58,7 @@ export default function LoginDialog({open, onClose, onLogin, setOpenAlert, setAl
                 setOpenAlert(true);
                 setAlertType('success');
                 setAlertMsg("Login successfully!");
-                console.log(data);
+                
                 // 将数据保存到localStorage中
                 tokenService.setLoginTokens(data.access_token, data.refresh_token);
                 localStorage.setItem("user", JSON.stringify(data.user));
