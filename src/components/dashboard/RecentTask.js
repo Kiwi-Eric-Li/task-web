@@ -1,4 +1,4 @@
-import {useState} from 'react'
+import {useState, useEffect} from 'react'
 import {Link} from 'react-router-dom'
 import {
     Box,
@@ -17,71 +17,18 @@ import AttachMoneyOutlined from "@mui/icons-material/AttachMoneyOutlined";
 import AccessTimeOutlined from "@mui/icons-material/AccessTimeOutlined";
 import { HistoryOutlined } from "@mui/icons-material";
 
+import request from "../../utils/request";
+
 export default function RecentTask(){
 
-    const [tasks, setTasks] = useState([
-        {
-            "id": 878,
-            "title": "Help create a simple flyer for my local bakery",
-            "budget": "180",
-            "location": null,
-            "type": "remote",
-            "schedule_time": "Sun, 19 Apr 2026 20:30:00 GMT",
-            "created_at": "Sat, 18 Apr 2026 12:20:20 GMT"
-        },
-        {
-            "id": 876,
-            "title": "Install new outdoor security light",
-            "budget": "180",
-            "location": "Lower Hutt, Wellington",
-            "type": "offline",
-            "schedule_time": "Tue, 21 Apr 2026 03:00:00 GMT",
-            "created_at": "Sun, 19 Apr 2026 12:20:27 GMT"
-        },
-        {
-            "id": 877,
-            "title": "Repair small garden brick wall in Henderson",
-            "budget": "120",
-            "location": "Henderson, Auckland",
-            "type": "offline",
-            "schedule_time": "Mon, 20 Apr 2026 02:00:00 GMT",
-            "created_at": "Sun, 19 Apr 2026 12:20:39 GMT"
-        },
-        {
-            "id": 875,
-            "title": "Replace loose roof tiles after recent wind",
-            "budget": "80",
-            "location": "Henderson, Auckland",
-            "type": "offline",
-            "schedule_time": "Mon, 20 Apr 2026 06:00:00 GMT",
-            "created_at": "Sat, 18 Apr 2026 12:20:20 GMT"
-        },
-        {
-            "id": 874,
-            "title": "Remove small fallen tree branch from backyard",
-            "budget": "120",
-            "location": "Palmerston North Central, Palmerston North",
-            "type": "offline",
-            "schedule_time": "Sun, 19 Apr 2026 19:30:00 GMT",
-            "created_at": "Sat, 18 Apr 2026 12:20:13 GMT"
-        },
-        {
-            "id": 873,
-            "title": "Replace sliding door rollers in Napier South",
-            "budget": "180",
-            "location": "Napier South, Napier",
-            "type": "offline",
-            "schedule_time": "Sun, 19 Apr 2026 05:30:00 GMT",
-            "created_at": "Sat, 18 Apr 2026 12:20:06 GMT"
-        }
-    ])
+    const [tasks, setTasks] = useState([]);
 
     const formatMoney = (obj) => {
         if (!obj.budget) return "Open to offers"
 
         const amount = obj.budget
 
-        if (obj.budget_type === "hourly") {
+        if (obj.pricing_type === 'Hourly') {
             return `${amount}/hr`
         }
         return amount
@@ -115,6 +62,25 @@ export default function RecentTask(){
         if (diffDays === 1) return "Posted yesterday";
         return `Posted ${diffDays} days ago`;
     }
+
+    useEffect(() => {
+        const getTheFirstTasks = async () => {
+            try{
+                const {code, data} = await request("/tasks/some");
+                console.log(code, data);
+                if(code === 0){
+                    setTasks(data);
+                }
+            }catch(e){
+                console.error(e);
+            }
+        }
+
+        getTheFirstTasks();
+    }, []);
+
+
+
 
     return (
         <Box
@@ -194,7 +160,7 @@ export default function RecentTask(){
                                                 <Stack spacing={1.0} sx={{ color: (t) => t.palette.text.secondary, fontSize: 14 }}>
                                                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                                                         <PlaceOutlined fontSize="small" />
-                                                        <Typography variant="body2">{item.location ?? 'Remote'}</Typography>
+                                                        <Typography variant="body2">{item.location === "" ? 'Remote' : item.location}</Typography>
                                                     </Box>
 
                                                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
