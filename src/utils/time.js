@@ -1,3 +1,5 @@
+const NZ_TZ = "Pacific/Auckland";
+
 export function formatSinceNow(input) {
     if (!input) return ''
     const then = new Date(input).getTime()
@@ -18,3 +20,33 @@ export function formatSinceNow(input) {
     const y = Math.floor(d / 365)
     return `${y} year${y === 1 ? '' : 's'} ago`
 }
+
+export const formatHHmm = (iso, timeZone) =>
+    iso
+        ? new Intl.DateTimeFormat("en-NZ", {
+            timeZone,
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+        }).format(new Date(iso)) // 'iso' assumed UTC/GMT; Date handles that
+        : "";
+
+export const formatDateNZ = (iso, opts) => {
+    if (!iso) return "";
+
+    const options =
+        typeof opts === "string" ? { timeZone: opts } : opts ?? {};
+    const timeZone = options.timeZone ?? NZ_TZ;
+
+    const dateStr = new Intl.DateTimeFormat("en-NZ", {
+        timeZone,
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+    }).format(new Date(iso));
+
+    if (!options.withTime) return dateStr;
+
+    const timeStr = formatHHmm(iso, timeZone);
+    return timeStr ? `${dateStr} ${timeStr}` : dateStr;
+};

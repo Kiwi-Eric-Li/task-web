@@ -16,11 +16,12 @@ export default function TaskFilterBar({onChange}){
 
 
     const applySearch = () => {
-
+        onChange(titleDraft);
     }
 
     const clearSearch = () => {
-
+        setTitleDraft("");
+        onChange("");
     }
 
     return (
