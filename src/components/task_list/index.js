@@ -27,7 +27,7 @@ import {
 } from "@mui/icons-material";
 import { ThemeProvider } from '@mui/material/styles';
 
-import themeUtil from "../../utils/theme"
+import theme from "../../utils/theme"
 import TaskFilterBar from "./TaskFilterBar"
 import request from "../../utils/request"
 import {formatDateNZ} from "../../utils/time"
@@ -55,9 +55,7 @@ const fetcher = async (url) => {
 
 const Item = styled(ListItemButton)(({ theme }) => ({
   position: "relative",
-  // padding: theme.spacing(2, 2.2),
   padding: theme.spacing(2, 0, 2, 1.5),
-  // margin: theme.spacing(1, 1.4),
   margin: theme.spacing(1, 0),
   minHeight: 118,
   alignItems: "flex-start",
@@ -160,7 +158,7 @@ export default function TaskList(){
 
 
     return (
-        <ThemeProvider theme={themeUtil}>
+        <ThemeProvider theme={theme}>
             <Box sx={{paddingTop: '90px', paddingBottom: '32px', bgcolor: 'rgba(255, 255, 255, 0.85)'}}>
                 <Container maxWidth="lg">
                     <Box sx={{
@@ -193,7 +191,7 @@ export default function TaskList(){
                                         height: '100%',
                                         overflowY: 'auto',
                                         background: 'linear-gradient(180deg,#f7f9fc 0%,#f1f4f9 100%)',
-                                        borderRight: `1px solid ${themeUtil.palette.divider}`}}>
+                                        borderRight: `1px solid ${theme.palette.divider}`}}>
                                     {isLoading && (
                                         <Box sx={{ display: "flex", justifyContent: "center", my: 3 }}>
                                             <CircularProgress />
@@ -207,6 +205,9 @@ export default function TaskList(){
                                                 const firstCategory = t.categories[0];
                                                 const extraCount = t.categories.length - 1;
                                                 const hasMoreCats = extraCount > 0;
+                                                t.poster_display_name = "lxf101";
+                                                t.offer_count = 0;
+                                                t.comment_count = 0;
 
                                                 return (
                                                     <Box key={`${t.id}-${index}`}>
@@ -241,24 +242,26 @@ export default function TaskList(){
                                                                     }}>
                                                                     <Typography
                                                                         variant="h3"
-                                                                        fontWeight={500}
-                                                                        sx={{ mt: 1, color: theme.palette.primary.main }}>
+                                                                        sx={{ mt: 1, fontSize: 20, fontWeight: 'bold',  color: theme.palette.primary.main }}>
                                                                         {t.budget ? `$${t.budget}${t.pricing_type === 'hourly' ? ' /hr' : ''}` : 'Flexible'}
                                                                     </Typography>
                                                                 </Box>
                                                             </Stack>
-                                                            <Box flex={1} minWidth={0} sx={{ pt: 3 }}>
+                                                            <Box flex={1} minWidth={0} sx={{ pt: 3, color: 'rgb(115, 115, 115)' }}>
+                                                                {/* title */}
                                                                 <Typography
                                                                     variant="subtitle2"
-                                                                    fontWeight={600}
                                                                     sx={{
                                                                         display: "-webkit-box",
                                                                         WebkitLineClamp: 2,
                                                                         WebkitBoxOrient: "vertical",
                                                                         overflow: "hidden",
+                                                                        color: '#000',
+                                                                        fontWeight: '600'
                                                                     }}>
                                                                     {t.title}
                                                                 </Typography>
+                                                                {/* categories */}
                                                                 <Stack
                                                                     direction="row"
                                                                     spacing={1}
@@ -283,77 +286,47 @@ export default function TaskList(){
                                                                             }}/>
                                                                     </Badge>
                                                                 </Stack>
+                                                                    
                                                                 <Stack
-                                                                    direction="row"
-                                                                    flexWrap="wrap"
-                                                                    columnGap={1.8}
-                                                                    rowGap={0.8}
+                                                                    direction="column"
+                                                                    spacing={1}
                                                                     mt={1}>
-                                                                    {/* location + date group */}
-                                                                    <Stack
-                                                                        direction="column"
-                                                                        spacing={0.4}
-                                                                        alignItems="flex-start">
+                                                                    {/* location */}
+                                                                    <Stack direction="row" alignItems="center" spacing={0.5}>
+                                                                        <Box sx={{ width: 20, display: "flex", justifyContent: "center" }}>
+                                                                            <LocationOn sx={{ fontSize: 16 }} />
+                                                                        </Box>
+                                                                        <Typography variant="caption">
+                                                                            {t.location === "" ? "Remote" : t.location}
+                                                                        </Typography>
+                                                                    </Stack>
+
+                                                                    {/* date */}
+                                                                    {t.schedule_time && (
                                                                         <Stack direction="row" alignItems="center" spacing={0.5}>
-                                                                            <Box
-                                                                                sx={{
-                                                                                    width: 20,
-                                                                                    display: "flex",
-                                                                                    justifyContent: "center",
-                                                                                }}>
-                                                                                <LocationOn sx={{ fontSize: 16 }} />
+                                                                            <Box sx={{ width: 20, display: "flex", justifyContent: "center" }}>
+                                                                                <AccessTime sx={{ fontSize: 15 }} />
                                                                             </Box>
                                                                             <Typography variant="caption">
-                                                                                {t.location === "" ? "Remote" : t.location}
+                                                                                {formatDateNZ(t.schedule_time)}
+                                                                            </Typography>
+                                                                        </Stack>
+                                                                    )}
+
+                                                                    {/* offers + comments */}
+                                                                    <Stack direction="row" spacing={2}>
+                                                                        <Stack direction="row" spacing={0.4} alignItems="center">
+                                                                            <Groups sx={{ fontSize: 16 }} />
+                                                                            <Typography variant="caption">
+                                                                                {t.offer_count} offers
                                                                             </Typography>
                                                                         </Stack>
 
-                                                                        {t.schedule_time && (
-                                                                            <Stack
-                                                                                direction="row"
-                                                                                alignItems="center"
-                                                                                spacing={0.5}>
-                                                                                <Box
-                                                                                    sx={{
-                                                                                        width: 20,
-                                                                                        display: "flex",
-                                                                                        justifyContent: "center",
-                                                                                    }}>
-                                                                                    <AccessTime sx={{ fontSize: 15 }} />
-                                                                                </Box>
-                                                                                <Typography variant="caption">
-                                                                                    {formatDateNZ(t.schedule_time)}
-                                                                                </Typography>
-                                                                            </Stack>
-                                                                        )}
-                                                                    </Stack>
-
-                                                                    {/* offers / comments */}
-                                                                    <Stack
-                                                                        direction="row"
-                                                                        spacing={1.4}
-                                                                        flexWrap="wrap"
-                                                                        color="text.secondary"
-                                                                    >
-                                                                        <Stack
-                                                                        direction="row"
-                                                                        spacing={0.4}
-                                                                        alignItems="center"
-                                                                        >
-                                                                        <Groups sx={{ fontSize: 16 }} />
-                                                                        <Typography variant="caption">
-                                                                            {t.offer_count} offers
-                                                                        </Typography>
-                                                                        </Stack>
-                                                                        <Stack
-                                                                        direction="row"
-                                                                        spacing={0.4}
-                                                                        alignItems="center"
-                                                                        >
-                                                                        <ChatBubbleOutline sx={{ fontSize: 16 }} />
-                                                                        <Typography variant="caption">
-                                                                            {t.comment_count} comments
-                                                                        </Typography>
+                                                                        <Stack direction="row" spacing={0.4} alignItems="center">
+                                                                            <ChatBubbleOutline sx={{ fontSize: 16 }} />
+                                                                            <Typography variant="caption">
+                                                                                {t.comment_count} comments
+                                                                            </Typography>
                                                                         </Stack>
                                                                     </Stack>
                                                                 </Stack>
@@ -377,8 +350,8 @@ export default function TaskList(){
 
                                     {/* ====== end ====== */}
                                     {isReachingEnd && (
-                                        <Typography align="center" sx={{ mt: 2, color: "text.secondary" }}>
-                                        No more tasks to display
+                                        <Typography align="center" sx={{ my: 2, color: "text.secondary" }}>
+                                            No more tasks to display
                                         </Typography>
                                     )}
                                 </Box>
