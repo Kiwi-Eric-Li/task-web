@@ -207,7 +207,6 @@ export default function TaskList(){
                                                 const firstCategory = t.categories[0];
                                                 const extraCount = t.categories.length - 1;
                                                 const hasMoreCats = extraCount > 0;
-                                                t.poster_display_name = "lxf101";
                                                 t.offer_count = 0;
                                                 t.comment_count = 0;
 
@@ -223,8 +222,8 @@ export default function TaskList(){
                                                                     width: "9ch",
                                                                 }}>
                                                                 <Avatar
-                                                                    src={t.poster_avatar_url ?? undefined}
-                                                                    alt={t.poster_display_name}
+                                                                    src={t.poster.avatar_url ?? undefined}
+                                                                    alt={t.poster.username}
                                                                     sx={{ width: 52, height: 52 }} />
                                                                 <Typography
                                                                     variant="caption"
@@ -232,7 +231,7 @@ export default function TaskList(){
                                                                     noWrap
                                                                     maxWidth={64}
                                                                     lineHeight={1.2}>
-                                                                    {t.poster_display_name}
+                                                                    {t.poster.username}
                                                                 </Typography>
 
                                                                 <Box
