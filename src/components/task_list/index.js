@@ -31,6 +31,8 @@ import theme from "../../utils/theme"
 import TaskFilterBar from "./TaskFilterBar"
 import request from "../../utils/request"
 import {formatDateNZ} from "../../utils/time"
+import TaskMap from "./TaskMap"
+import StatusBadge from "./StatusBadge"
 
 const rightPaneSx = {
   flex: { md: '0 0 62%', lg: '0 0 65%' },
@@ -247,6 +249,9 @@ export default function TaskList(){
                                                                     </Typography>
                                                                 </Box>
                                                             </Stack>
+                                                            
+                                                            <StatusBadge status={t.status} variant="box" />
+
                                                             <Box flex={1} minWidth={0} sx={{ pt: 3, color: 'rgb(115, 115, 115)' }}>
                                                                 {/* title */}
                                                                 <Typography
@@ -357,7 +362,7 @@ export default function TaskList(){
                                 </Box>
                                 {/* right side: map */}
                                 <Box ref={detailRef} sx={rightPaneSx}>
-                                    
+                                    <TaskMap />
                                 </Box>
                             </Box>
                         ) : (
