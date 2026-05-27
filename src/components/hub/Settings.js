@@ -12,6 +12,8 @@ import {
 import {useSelector, useDispatch} from 'react-redux';
 import { Upload, Check } from "@mui/icons-material";
 
+import request from "../../utils/request"
+
 const MAX_AVATAR_BYTES = 1 * 1024 * 1024; // 1MB
 const NAME_MAX = 40;
 const BIO_MAX = 500;
@@ -91,7 +93,31 @@ export default function Settings(){
     }
 
     useEffect(() => {
-        setCurrentAvatarSrc(userData.avatar_url);
+        // setCurrentAvatarSrc(userData.avatar_url);
+
+        const getUserInfo = async () => {
+            try{
+                const response = await request.get("auth/user-info");
+                console.log("response============", response);
+                if(response.code === 0){
+                    setCurrentAvatarSrc(response.data.avatar_url);
+                    setProfileData({
+                        name: (response.data.firstname || "") + (response.data.lastname || ""),
+                        bio: response.data.bio || ""
+                    });
+                    setInitialAccount({
+                        username: response.data.username || "",
+                        email: response.data.email || ""
+                    });
+                }else{
+                    console.error(response.message);
+                }
+            }catch(e){
+                console.error(e);
+            }
+        };
+
+        getUserInfo();
     }, []);
 
     useEffect(() => {
