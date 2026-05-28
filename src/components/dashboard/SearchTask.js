@@ -1,5 +1,5 @@
 import {useState, useEffect} from 'react'
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {Link} from "react-router-dom";
 import {
   Box, 
@@ -28,12 +28,12 @@ import PlaceOutlined from "@mui/icons-material/PlaceOutlined";
 
 import theme from "../../utils/theme"
 import {setActiveRole} from '../../store/modules/activeRoleReducer'
-import request from "../../utils/request"
 
 const MAX_TITLE_LENGTH = 80
 
 export default function SearchTask(){
     const dispatch = useDispatch();
+    const {categories} = useSelector((state) => state.categories);
 
     const [role, setRole] = useState('poster');
     const [query, setQuery] = useState("");
@@ -53,20 +53,10 @@ export default function SearchTask(){
     }
 
     useEffect(() => {
-
-        async function fetchCategories(){
-            try{
-                const taskCategories = await request.get("/task-category");
-                if(taskCategories.code === 0){
-                    setAllCategories(taskCategories.data);
-                }
-            } catch (err) {
-                console.error("Failed to fetch task categories", err);
-            }
+        if(categories.length > 0){
+            setAllCategories(categories);
         }
-
-        fetchCategories();
-    }, []);
+    }, [categories]);
 
 
     return (

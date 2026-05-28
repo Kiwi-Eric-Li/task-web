@@ -27,17 +27,12 @@ import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 
 import theme from "../../utils/theme"
-import SearchTask from "./SearchTask"
-import HowItWorks from "./HowItWorks"
-import FAQ from "./FAQ"
-import Footer from "./Footer"
-import TermsMain from './TermsMain';
-import PrivacyMain from './PrivacyMain';
-import RecentTask from './RecentTask';
 import BackToTop from './BackToTop';
 import LoginDialog from '../login/LoginDialog';
 import {setUserData} from '../../store/modules/userReducer'
+import {setCategories} from '../../store/modules/categoriesReducer'
 import UserMenu from './UserMenu'
+import request from '../../utils/request';
 
 export default function DashboardIndex(){
     const dispatch = useDispatch();
@@ -68,8 +63,22 @@ export default function DashboardIndex(){
             // 将数据同步给store
             dispatch(setUserData(userData));
         }
-    }, []);
 
+        // get categories data -> store
+        const getCategories = async () => {
+            try {
+                const response = await request.get('/task-category');
+                if(response.code === 0){
+                    dispatch(setCategories(response.data));
+                }
+            } catch (error) {
+                console.error('Error fetching categories:', error);
+            }
+        };
+
+        getCategories();
+
+    }, []);
 
 
     const snackbar = (
@@ -92,11 +101,11 @@ export default function DashboardIndex(){
                     <Box sx={{display: 'flex'}}>
                         {/* 菜单按钮（小屏显示） */}
                         <IconButton
-                        edge="start"
-                        onClick={toggleDrawer}
-                        sx={{ display: { xs: 'flex', md: 'none' }, alignItems: 'center', 'width': '40px', 'height': '40px', 'marginRight': '5px'}}
-                        >
-                        <MenuIcon />
+                            edge="start"
+                            onClick={toggleDrawer}
+                            sx={{ display: { xs: 'flex', md: 'none' }, alignItems: 'center', 'width': '40px', 'height': '40px', 'marginRight': '5px'}}
+                            >
+                            <MenuIcon />
                         </IconButton>
 
                         <Box sx={{ display: 'flex', 'justifyContent': 'center', 'alignItems': 'center', fontWeight: 800, letterSpacing: '0.2px', color: 'rgb(38, 38, 38)'}}>
@@ -158,11 +167,11 @@ export default function DashboardIndex(){
 
                 {/* 抽屉菜单（小屏点击打开） */}
                 <Drawer 
-                anchor="left" 
-                open={open} 
-                onClose={toggleDrawer} 
-                PaperProps={{
-                    sx: { width: 320 },
+                    anchor="left" 
+                    open={open} 
+                    onClose={toggleDrawer} 
+                    PaperProps={{
+                        sx: { width: 320 },
                 }}>
                     <Box sx={{display: 'flex', 'flexDirection': 'column',  'justifyContent': 'center', 'alignItems': 'center'}}>
                     <Button 
@@ -184,15 +193,15 @@ export default function DashboardIndex(){
                         component="nav"
                         aria-labelledby="nested-list-subheader"
                         subheader={
-                        <ListSubheader component="div" id="nested-list-subheader">
-                            NAVIGATE
-                        </ListSubheader>
+                            <ListSubheader component="div" id="nested-list-subheader">
+                                NAVIGATE
+                            </ListSubheader>
                         }>
                         <ListItemButton>
-                        <ListItemIcon>
-                            <MoreVertIcon />
-                        </ListItemIcon>
-                        <ListItemText primary="Browse task" component={Link} href="/task/task-list"/>
+                            <ListItemIcon>
+                                <MoreVertIcon />
+                            </ListItemIcon>
+                            <ListItemText primary="Browse task" component={Link} href="/task/task-list"/>
                         </ListItemButton>
                     </List>
                     </Box>

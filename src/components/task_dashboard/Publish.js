@@ -1,6 +1,7 @@
 import {useState, useEffect} from 'react';
 import { createPortal } from "react-dom";
 import {useNavigate} from 'react-router-dom';
+import {useSelector} from 'react-redux';
 import {
     Box,
     Card,
@@ -56,8 +57,11 @@ const UPLOAD_LIMITS = {
     maxVideoMB: DEFAULT_MAX_VIDEO_MB,
 };
 
+
+
 export default function TaskPublish(){
     const navigate = useNavigate();
+    const {categories} = useSelector((state) => state.categories);
 
     const [isLoading, setIsLoading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
@@ -91,21 +95,10 @@ export default function TaskPublish(){
     const maxFuture = today.add(6, "month");
     
     useEffect(() => {
-        // Fetch category list from backend
-        const fetchCategories = async () => {
-            try {
-                // Simulate an API call
-                const response = await request.get("/task-category");
-                if(response.code === 0){
-                    setCatList(response.data);
-                }
-            } catch (error) {
-                console.error("Error fetching categories:", error);
-            }
-        };
-
-        fetchCategories();
-    }, []);
+        if(categories.length > 0){
+            setCatList(categories);
+        }
+    }, [categories]);
 
 
     useEffect(()=>{

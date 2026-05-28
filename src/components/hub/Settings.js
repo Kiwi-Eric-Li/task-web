@@ -83,7 +83,8 @@ export default function Settings(){
     const [oldPassword, setOldPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-    const [savingPassword, setSavingPassword] = useState(false);
+    const [pwdError, setPwdError] = useState("");
+    
     const [notificationSettings, setNotificationSettings] = useState({
         inApp: true,
         email: true,
@@ -214,10 +215,6 @@ export default function Settings(){
         }
     }
 
-    const handlePasswordSubmit = () => {
-
-    }
-
     const handleCancelPasswordEdit = () => {
         setIsPasswordEditing(false);
     }
@@ -225,6 +222,45 @@ export default function Settings(){
     const updateNotif = () => {
 
     }
+
+    const handleUpdatePassword = () => {
+        setIsPasswordEditing(true);
+        setPwdError("");
+        setOldPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+    }
+
+    const ModifyPwdChange = async () => {
+        setPwdError("");
+
+        if(newPassword !== confirmPassword){
+            setPwdError("New password and confirm password do not match.");
+            return ;
+        }
+
+        try{
+            const response = await request.put("auth/modify-password", {
+                "id": profileData.id,
+                "current_pwd": oldPassword,
+                "new_pwd": newPassword
+            });
+            
+            setOpenAlert(true);
+            if(response.code === 0){
+                setAlertType('success');
+                setAlertMsg(response.message);
+                handleUpdatePassword();
+                handleCancelPasswordEdit();
+            }else{
+                setAlertType('error');
+                setAlertMsg(response.message);
+            }
+        }catch(e){
+            console.error(e);
+        }
+    }
+
 
     const snackbar = (
         <Snackbar
@@ -236,10 +272,6 @@ export default function Settings(){
             <Alert severity={alertType}>{alertMsg}</Alert>
         </Snackbar>
     );
-
-
-
-
 
     return (
         <>
@@ -486,14 +518,14 @@ export default function Settings(){
                                     </Typography>
                                     <Button
                                         variant="outlined"
-                                        onClick={() => setIsPasswordEditing(true)}
+                                        onClick={handleUpdatePassword}
                                         sx={{ textTransform: "none" }}
                                     >
                                         Update Password
                                     </Button>
                                 </Box>
                                 : 
-                                <Box component="form" onSubmit={handlePasswordSubmit} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                                <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
                                     <TextField
                                         label="Current password"
                                         type="password"
@@ -521,11 +553,16 @@ export default function Settings(){
                                         value={confirmPassword}
                                         onChange={(e) => setConfirmPassword(e.target.value)}
                                     />
+                                    {pwdError && (
+                                        <Typography color="error" fontSize={14} mt={1}>
+                                            {pwdError}
+                                        </Typography>
+                                    )}
+
                                     <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
                                         <Button
                                             variant="outlined"
                                             onClick={handleCancelPasswordEdit}
-                                            disabled={savingPassword}
                                             sx={{ textTransform: "none" }}
                                         >
                                             Cancel
@@ -533,13 +570,14 @@ export default function Settings(){
                                         <Button
                                             type="submit"
                                             variant="contained"
-                                            disabled={savingPassword}
+                                            disabled={oldPassword === "" || newPassword === "" || confirmPassword === ""}
                                             sx={{
                                                 bgcolor: "primary.main",
                                                 color: "primary.contrastText",
                                                 textTransform: "none",
                                                 "&:hover": { bgcolor: "primary.dark" },
                                             }}
+                                            onClick={ModifyPwdChange}
                                         >
                                             Save Changes
                                         </Button>
