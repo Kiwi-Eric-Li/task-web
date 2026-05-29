@@ -12,7 +12,7 @@ import {
     Snackbar,
     Alert,
 } from "@mui/material"
-import {useSelector, useDispatch} from 'react-redux';
+import {useSelector} from 'react-redux';
 import { Upload, Check } from "@mui/icons-material";
 
 import request from "../../utils/request"
@@ -27,7 +27,7 @@ export default function Settings(){
     const [alertType, setAlertType] = useState("success");
     const [alertMsg, setAlertMsg] = useState("");
 
-    const {userData} = useSelector(state => state.userData || {});
+    const {categories} = useSelector((state) => state.categories);
     const [currentAvatarSrc, setCurrentAvatarSrc] = useState('');
     const fileInputRef = useRef(null);
 
@@ -37,48 +37,15 @@ export default function Settings(){
         bio: ''
     });
 
-    const [categoriesData, setCategoriesData] = useState([
-        {
-            id: 1,
-            name: 'Administrative Services'
-        },
-        {
-            id: 2,
-            name: 'Alternative Services'
-        },
-        {
-            id: 3,
-            name: 'Applicance Installation'
-        },
-        {
-            id: 4,
-            name: 'Automotive Services'
-        },
-        {
-            id: 5,
-            name: 'Beauty & Wellness'
-        },
-        {
-            id: 6,
-            name: 'Computer & IT Services'
-        },
-        {
-            id: 7,
-            name: 'Education & Tutoring'
-        },
-        {
-            id: 8,
-            name: 'Roofing & Construction'
-        }
-    ]);
+    const [categoriesData, setCategoriesData] = useState([]);
 
-    const [initialCategoryIds, setInitialCategoryIds] = useState([1, 3]);
+    const [initialCategoryIds, setInitialCategoryIds] = useState([]);
     const [selectedCategoryIds, setSelectedCategoryIds] = useState([1, 3]);
     const [isCategoriesDirty, setIsCategoriesDirty] = useState(true);
     const [isAccountEditing, setIsAccountEditing] = useState(false);
     const [initialAccount, setInitialAccount] = useState({ username: "", email: "" });
     const [accountDraft, setAccountDraft] = useState({ username: "", email: "" });
-    const [savingAccount, setSavingAccount] = useState(false);
+    
     const [isPasswordEditing, setIsPasswordEditing] = useState(false);
     const [oldPassword, setOldPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
@@ -100,8 +67,7 @@ export default function Settings(){
     }
 
     useEffect(() => {
-        // setCurrentAvatarSrc(userData.avatar_url);
-
+        
         const getUserInfo = async () => {
             try{
                 const response = await request.get("auth/user-info");
@@ -125,13 +91,33 @@ export default function Settings(){
             }
         };
 
+        const getUserCategories = async () => {
+            try{
+                const response = await request.get("/auth/preferred-category");
+                console.log(response);
+                if(response.code === 0){
+                    const categoryIds = response.data.map(cat => cat.id);
+                    setSelectedCategoryIds(categoryIds);
+                    setInitialCategoryIds(categoryIds);
+                }
+            }catch(e){
+                console.error(e);
+            }
+        }
+
         getUserInfo();
+        getUserCategories();
     }, []);
 
     useEffect(() => {
         setIsCategoriesDirty(selectedCategoryIds.length === initialCategoryIds.length && [...selectedCategoryIds].sort().every((item, index) => item === [...initialCategoryIds].sort()[index]));
     }, [selectedCategoryIds])
 
+    useEffect(() => {
+        if(categories.length > 0){
+            setCategoriesData(categories);
+        }
+    }, [categories])
 
     const onAvatarFileSelected = () => {
 
@@ -384,7 +370,7 @@ export default function Settings(){
                                     key={category.id}
                                     label={
                                         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                            {category.name}
+                                            {category.title}
                                             {isSelected && <Check sx={{ fontSize: 16, color: "primary.main" }} />}
                                         </Box>
                                     }
@@ -476,7 +462,6 @@ export default function Settings(){
                                 <Button
                                     variant="outlined"
                                     onClick={handleCancelAccountEdit}
-                                    disabled={savingAccount}
                                     sx={{ textTransform: "none" }}
                                 >
                                     Cancel
@@ -484,7 +469,6 @@ export default function Settings(){
                                 <Button
                                     variant="contained"
                                     onClick={handleSaveAccount}
-                                    disabled={savingAccount}
                                     sx={{
                                         bgcolor: "primary.main",
                                         color: "primary.contrastText",
