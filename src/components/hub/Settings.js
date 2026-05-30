@@ -40,7 +40,7 @@ export default function Settings(){
     const [categoriesData, setCategoriesData] = useState([]);
 
     const [initialCategoryIds, setInitialCategoryIds] = useState([]);
-    const [selectedCategoryIds, setSelectedCategoryIds] = useState([1, 3]);
+    const [selectedCategoryIds, setSelectedCategoryIds] = useState([]);
     const [isCategoriesDirty, setIsCategoriesDirty] = useState(true);
     const [isAccountEditing, setIsAccountEditing] = useState(false);
     const [initialAccount, setInitialAccount] = useState({ username: "", email: "" });
@@ -96,7 +96,7 @@ export default function Settings(){
                 const response = await request.get("/auth/preferred-category");
                 console.log(response);
                 if(response.code === 0){
-                    const categoryIds = response.data.map(cat => cat.id);
+                    const categoryIds = response.data.map(cat => String(cat.category_id));
                     setSelectedCategoryIds(categoryIds);
                     setInitialCategoryIds(categoryIds);
                 }
@@ -150,8 +150,22 @@ export default function Settings(){
         }
     }
 
-    const handleSaveCategories = () => {
+    const handleSaveCategories = async () => {
+        const data = [];
+        selectedCategoryIds.forEach((id) => {
+            data.push({"user_id": profileData.id, "category_id": Number(id) });
+        });
 
+        try{
+            const response = await request.put("/auth/preferred-category", data);
+            if(response.code === 0){
+                setOpenAlert(true);
+                setAlertType('success');
+                setAlertMsg("replace successfully");
+            }
+        }catch(e){
+            console.error(e);
+        }
     }
 
     const handleStartAccountEdit = () => {
