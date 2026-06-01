@@ -55,7 +55,7 @@ export default function Settings(){
     const [notificationSettings, setNotificationSettings] = useState({
         inApp: true,
         email: true,
-        marketing: false,
+        marketing: true,
     });
 
     const toggleCategory = (categoryId) => {
@@ -63,6 +63,25 @@ export default function Settings(){
             setSelectedCategoryIds(selectedCategoryIds.filter(id => id !== categoryId));
         }else{
             setSelectedCategoryIds([...selectedCategoryIds, categoryId]);
+        }
+    }
+
+    const getNotificationSettings = async() => {
+        try{
+            const response = await request.get("/auth/notification-settings?user_id=" + profileData.id);
+            if(response.code === 0){
+                setNotificationSettings({
+                    inApp: response.data.app_enabled ? true : false,
+                    email: response.data.email_enabled ? true : false,
+                    marketing: response.data.marketing_opt ? true : false
+                });
+            }else{
+                setOpenAlert(true);
+                setAlertType('error');
+                setAlertMsg("Failed to load notification settings");
+            }
+        }catch(e){
+            console.error(e);
         }
     }
 
@@ -94,7 +113,6 @@ export default function Settings(){
         const getUserCategories = async () => {
             try{
                 const response = await request.get("/auth/preferred-category");
-                console.log(response);
                 if(response.code === 0){
                     const categoryIds = response.data.map(cat => String(cat.category_id));
                     setSelectedCategoryIds(categoryIds);
@@ -105,9 +123,20 @@ export default function Settings(){
             }
         }
 
-        getUserInfo();
-        getUserCategories();
+        async function init(){
+            await getUserInfo();
+            await getUserCategories();
+        }
+
+        init();
+        
     }, []);
+
+    useEffect(() => {
+        if (profileData.id) {
+            getNotificationSettings();
+        }
+    }, [profileData.id]);
 
     useEffect(() => {
         setIsCategoriesDirty(selectedCategoryIds.length === initialCategoryIds.length && [...selectedCategoryIds].sort().every((item, index) => item === [...initialCategoryIds].sort()[index]));
@@ -119,12 +148,13 @@ export default function Settings(){
         }
     }, [categories])
 
-    const onAvatarFileSelected = () => {
-
+    const onAvatarFileSelected = (e) => {
+        const file = e.target.files?.[0];
+        console.log(file);
     }
 
     const onChangeAvatarClick = () => {
-
+        fileInputRef.current?.click();
     }
 
     const handleSaveProfile = async () => {
@@ -219,7 +249,26 @@ export default function Settings(){
         setIsPasswordEditing(false);
     }
 
-    const updateNotif = () => {
+    const updateNotif = async (val) => {
+        
+        const key = Object.keys(val)[0];
+        val[key] = Number(val[key]);
+
+        try{
+            const response = await request.put("/auth/notification-settings", val);
+            
+            if(response.code === 0){
+                setOpenAlert(true);
+                setAlertType('success');
+                setAlertMsg("set successfully");
+            }else{
+                setOpenAlert(true);
+                setAlertType('error');
+                setAlertMsg("set failed");
+            }
+        }catch(e){
+            console.error(e);
+        }
 
     }
 
@@ -584,6 +633,7 @@ export default function Settings(){
                         }
                     </Box>
                 </Paper>
+                {/* Notification Preferences */}
                 <Paper sx={{ p: 3 }}>
                     <Typography variant="h6" sx={{ fontWeight: 600, color: "text.primary", mb: 0.5 }}>
                         Notification Preferences
@@ -606,7 +656,7 @@ export default function Settings(){
                                 onChange={(e) => {
                                     const val = e.target.checked;
                                     setNotificationSettings((s) => ({ ...s, inApp: val }));
-                                    updateNotif({ in_app_enabled: val });
+                                    updateNotif({ "app_enabled": val });
                                 }}
                             />
                         </Box>
@@ -624,7 +674,7 @@ export default function Settings(){
                                 onChange={(e) => {
                                     const val = e.target.checked;
                                     setNotificationSettings((s) => ({ ...s, email: val }));
-                                    updateNotif({ email_enabled: val });
+                                    updateNotif({ "email_enabled": val });
                                 }}
                             />
                         </Box>
@@ -643,7 +693,7 @@ export default function Settings(){
                                     const val = e.target.checked;
                                     setNotificationSettings((s) => ({ ...s, marketing: val }));
                                     // server uses "opt-out"
-                                    updateNotif({ marketing_opt_out: !val });
+                                    updateNotif({ "marketing_opt": val });
                                 }}
                             />
                         </Box>
