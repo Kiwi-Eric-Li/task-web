@@ -51,6 +51,8 @@ export default function Settings(){
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [pwdError, setPwdError] = useState("");
+    const [avatarError, setAvatarError] = useState("");
+    const [pendingAvatarFile, setPendingAvatarFile] = useState(null);
     
     const [notificationSettings, setNotificationSettings] = useState({
         inApp: true,
@@ -151,6 +153,22 @@ export default function Settings(){
     const onAvatarFileSelected = (e) => {
         const file = e.target.files?.[0];
         console.log(file);
+        if(!file){
+            return;
+        }
+        if(!file.type.startsWith("image/")){
+            setAvatarError("Please choose an image file.");
+            e.target.value = "";
+            return;
+        }
+        if(file.size > MAX_AVATAR_BYTES){
+            setAvatarError("Image must be smaller than 1MB.");
+            e.target.value = "";
+            return;
+        }
+        setAvatarError(null);
+        setPendingAvatarFile(file);
+
     }
 
     const onChangeAvatarClick = () => {
@@ -160,11 +178,19 @@ export default function Settings(){
     const handleSaveProfile = async () => {
 
         try{
-            const response = await request.put("auth/user-info?flag=profile", {
-                "id": profileData.id,
-                "firstname": profileData.name.split(" ")[0],
-                "lastname": profileData.name.split(" ")[1],
-                "bio": profileData.bio
+            const formData = new FormData();
+            formData.append("id", profileData.id);
+            formData.append("firstname", profileData.name.split(" ")[0]);
+            formData.append("lastname", profileData.name.split(" ")[1]);
+            formData.append("bio", profileData.bio);
+            if (pendingAvatarFile) {
+                formData.append("avatar", pendingAvatarFile);
+            }
+
+            const response = await request.put("auth/user-info?flag=profile", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data"
+                }
             });
             if(response.code === 0){
                 setOpenAlert(true);
@@ -371,6 +397,11 @@ export default function Settings(){
                                 <Typography variant="caption" sx={{ display: "block", color: "text.secondary", mt: 1 }}>
                                     JPG or PNG. Max size 5&nbsp;MB.
                                 </Typography>
+                                {avatarError && (
+                                    <Typography variant="caption" sx={{ display: "block", color: "error.main", mt: 0.5 }}>
+                                        {avatarError}
+                                    </Typography>
+                                )}
                             </Box>
                         </Box>
                         <Box>
