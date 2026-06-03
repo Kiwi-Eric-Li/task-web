@@ -166,9 +166,11 @@ export default function Settings(){
             e.target.value = "";
             return;
         }
+        const url = URL.createObjectURL(file);
+        setCurrentAvatarSrc(url);
+
         setAvatarError(null);
         setPendingAvatarFile(file);
-
     }
 
     const onChangeAvatarClick = () => {
@@ -180,14 +182,14 @@ export default function Settings(){
         try{
             const formData = new FormData();
             formData.append("id", profileData.id);
-            formData.append("firstname", profileData.name.split(" ")[0]);
-            formData.append("lastname", profileData.name.split(" ")[1]);
+            formData.append("firstname", profileData.name.trim().split(" ")[0]);
+            formData.append("lastname", profileData.name.trim().split(" ")[1]);
             formData.append("bio", profileData.bio);
             if (pendingAvatarFile) {
                 formData.append("avatar", pendingAvatarFile);
             }
 
-            const response = await request.put("auth/user-info?flag=profile", formData, {
+            const response = await request.put("/auth/user-info", formData, {
                 headers: {
                     "Content-Type": "multipart/form-data"
                 }
@@ -196,6 +198,7 @@ export default function Settings(){
                 setOpenAlert(true);
                 setAlertType('success');
                 setAlertMsg(response.message);
+                setPendingAvatarFile(null);
             }else{
                 setOpenAlert(true);
                 setAlertType('error');
@@ -247,7 +250,7 @@ export default function Settings(){
     const handleSaveAccount = async () => {
 
         try{
-            const response = await request.put("auth/user-info?flag=account", {
+            const response = await request.put("/auth/user-account", {
                 "id": profileData.id,
                 "username": accountDraft.username,
                 "email": accountDraft.email
