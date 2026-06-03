@@ -1,4 +1,5 @@
 import {useState, useMemo, useEffect, useRef} from "react";
+import {useSearchParams, useNavigate} from "react-router-dom"
 import useSWRInfinite from "swr/infinite";
 import {
     Box, 
@@ -33,6 +34,8 @@ import request from "../../utils/request"
 import {formatDateNZ} from "../../utils/time"
 import TaskMap from "./TaskMap"
 import StatusBadge from "./StatusBadge"
+import TaskDetail from "./TaskDetail"
+
 
 const rightPaneSx = {
   flex: { md: '0 0 62%', lg: '0 0 65%' },
@@ -87,12 +90,15 @@ export default function TaskList(){
 
     const [searchTitle, setSearchTitle] = useState("");
     const loadMoreRef = useRef(null);
+
+    const [params] = useSearchParams();
+    const selectedId = params.get("taskid");
+    const navigate = useNavigate();
     
     const handleFilterChange = (title) => {
         setSearchTitle(title);
         console.log("searchTitle======", title);
     }
-
 
     const {
         data,
@@ -158,6 +164,9 @@ export default function TaskList(){
         return () => observer.disconnect();
     }, [setSize, isReachingEnd, isLoading, isValidating]);
 
+    const showTaskDetail = (id) => {
+        navigate(`/task/task-list?taskid=${id}`);
+    }
 
     return (
         <ThemeProvider theme={theme}>
@@ -211,8 +220,10 @@ export default function TaskList(){
                                                 t.comment_count = 0;
 
                                                 return (
-                                                    <Box key={`${t.id}-${index}`}>
-                                                        <Item sx={{ position: "relative" }}>
+                                                    <Box key={`${t.id}-${index}`} onClick={() => showTaskDetail(t.id)}>
+                                                        <Item 
+                                                            selected={selectedId === String(t.id)}
+                                                            sx={{ position: "relative" }}>
                                                             <Stack
                                                                 alignItems="center"
                                                                 mr={2}
@@ -266,31 +277,33 @@ export default function TaskList(){
                                                                     {t.title}
                                                                 </Typography>
                                                                 {/* categories */}
-                                                                <Stack
-                                                                    direction="row"
-                                                                    spacing={1}
-                                                                    mt={0.8}
-                                                                    flexWrap="wrap"
-                                                                    rowGap={0.6}>
-                                                                    <Badge
-                                                                        overlap="rectangular"
-                                                                        badgeContent={extraCount}
-                                                                        color="secondary"
-                                                                        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-                                                                        invisible={!hasMoreCats}>
-                                                                        <Chip
-                                                                            label={firstCategory?.title}
-                                                                            size="small"
-                                                                            variant="soft"
+                                                                {t.categories.length > 0 && (
+                                                                    <Stack
+                                                                        direction="row"
+                                                                        spacing={1}
+                                                                        mt={0.8}
+                                                                        flexWrap="wrap"
+                                                                        rowGap={0.6}>
+                                                                        <Badge
+                                                                            overlap="rectangular"
+                                                                            badgeContent={extraCount}
                                                                             color="secondary"
-                                                                            sx={{
-                                                                                backgroundColor: theme.palette.secondary.main,
-                                                                                color: theme.palette.text.primary,
-                                                                                fontWeight: 400,
-                                                                            }}/>
-                                                                    </Badge>
-                                                                </Stack>
-                                                                    
+                                                                            anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                                                                            invisible={!hasMoreCats}>
+                                                                            <Chip
+                                                                                label={firstCategory?.title}
+                                                                                size="small"
+                                                                                variant="soft"
+                                                                                color="secondary"
+                                                                                sx={{
+                                                                                    backgroundColor: theme.palette.secondary.main,
+                                                                                    color: theme.palette.text.primary,
+                                                                                    fontWeight: 400,
+                                                                                }}/>
+                                                                        </Badge>
+                                                                    </Stack>
+                                                                )}
+                                                                
                                                                 <Stack
                                                                     direction="column"
                                                                     spacing={1}
@@ -359,10 +372,15 @@ export default function TaskList(){
                                         </Typography>
                                     )}
                                 </Box>
-                                {/* right side: map */}
-                                <Box ref={detailRef} sx={rightPaneSx}>
-                                    <TaskMap />
-                                </Box>
+                                
+                                {/* right side: task-detail / map */}
+                                {selectedId ? (
+                                    <TaskDetail taskId={selectedId} />
+                                ) : (
+                                    <Box ref={detailRef} sx={rightPaneSx}>
+                                        <TaskMap />
+                                    </Box>
+                                )}
                             </Box>
                         ) : (
                             <Box>小屏幕</Box>
