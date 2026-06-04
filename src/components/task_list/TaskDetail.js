@@ -1,5 +1,6 @@
 import {useState, useEffect} from 'react'
 import {useNavigate} from "react-router-dom"
+import {useSelector} from 'react-redux';
 
 import {
   AccessTime,
@@ -38,6 +39,8 @@ import StatusBadge from "./StatusBadge";
 import UserRatingInline from "./UserRatingInline";
 import { formatDateNZ } from "../../utils/time";
 import TaskAttachments from "./TaskAttachments";
+import OwnerOfferPanel from "./OwnerOfferPanel";
+import OfferList from "./OfferList";
 
 
 const Gray = (props) => (
@@ -128,12 +131,15 @@ const DescriptionSection = styled(Paper)(({ theme }) => ({
 }));
 
 export default function TaskDetail({taskId}){
-
+    const {userData} = useSelector(state => state.userData || {});
     const navigate = useNavigate();
     const [task, setTask] = useState({});
     const [showAllCats, setShowAllCats] = useState(false);
+    const [isOwner, setIsOwner] = useState(false);
+    const [hasMatched, setHasMatched] = useState(false);
+    const [canOffer, setCanOffer] = useState(false);
     const CAT_LIMIT = 2;
-
+    
 
     useEffect(() => {
         // Simulate an API call to fetch task details
@@ -144,6 +150,11 @@ export default function TaskDetail({taskId}){
                 const {code, data} = response;
                 if(code === 0){
                     setTask(data);
+                    if(userData.id === data.poster_id){
+                        setIsOwner(true);
+                    }
+                    setHasMatched(data.offers.some(o => o.is_matched));
+                    setCanOffer(!isOwner && !hasMatched && task.status === "Open");
                 }
             }catch(e){
                 console.error("Error fetching task details:", e);
@@ -152,6 +163,18 @@ export default function TaskDetail({taskId}){
 
         fetchTask();
     }, [taskId]);
+
+    const handleMakeOffer = () => {
+        // if (isAuthenticated) {
+        //     setOfferOpen(true);
+        // } else {
+        //     document.getElementById("loginTrigger")?.click();
+        // }
+    };
+
+    const afterMutate = () => {
+
+    }
 
     return (
         <Box
@@ -363,6 +386,87 @@ export default function TaskDetail({taskId}){
                         <TaskAttachments attachments={task?.attachments ?? []} />
                     </Section>
                 </DescriptionSection>
+                
+                {/* Offers */}
+                <Section>
+                    <Paper
+                        variant="outlined"
+                        sx={{
+                            p: 2,
+                            mb: 3,
+                            borderRadius: 2,
+                            boxShadow: 1,
+                            backgroundColor: alpha(theme.palette.background.paper, 0.8),
+                        }}
+                    >
+                        <Stack
+                            direction="row"
+                            alignItems="center"
+                            justifyContent="space-between"
+                            sx={{ mb: 1 }}
+                        >
+                        <Stack direction="row" alignItems="center" spacing={1}>
+                            <LocalOffer fontSize="small" sx={{ color: theme.palette.primary.main }} />
+                            <Typography variant="h6" fontWeight={700}>
+                            {task?.offers.length} Offer{task?.offers.length === 1 ? "" : "s"}
+                            </Typography>
+                        </Stack>
+                        
+                        {canOffer && (
+                            <Button
+                                onClick={handleMakeOffer}
+                                startIcon={<LocalOffer />}
+                                variant="contained"
+                                color="primary"
+                                size="small"
+                                sx={{
+                                    textTransform: "none",
+                                    boxShadow: 2,
+                                    "&:hover": { boxShadow: 4 },
+                                }}>
+                            Make An Offer
+                            </Button>
+                        )}
+                        </Stack>
+
+                        <Divider sx={{ mb: 2 }} />
+
+                        {isOwner ? (
+                        <>
+                            {hasMatched && task.status === "Matching" && (
+                                <Paper
+                                    sx={{
+                                        p: 1.5,
+                                        mb: 2,
+                                        bgcolor: alpha(theme.palette.info.main, 0.08),
+                                        border: `1px solid ${alpha(theme.palette.info.main, 0.25)}`,
+                                    }}>
+                                    <Typography variant="body2">
+                                    You’ve selected a preferred offer. Waiting for the tasker to confirm. You can cancel the selection to choose another offer.
+                                    </Typography>
+                                </Paper>
+                            )}
+
+                            <OwnerOfferPanel
+                                taskId={task.id.toString()}
+                                status={task.status}
+                                offers={task.offers}
+                                onMutate={afterMutate}
+                            />
+                        </>
+                        ) : (
+                            <OfferList
+                                offers={task.offers}
+                                emptyText="Be the first to offer — let the poster know what you can do!"
+                            />
+                        )}
+                    </Paper>
+                </Section>
+
+
+                {/* Comments */}
+
+
 
 
             </Box>
