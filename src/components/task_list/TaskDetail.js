@@ -135,10 +135,11 @@ export default function TaskDetail({taskId}){
     const navigate = useNavigate();
     const [task, setTask] = useState({});
     const [showAllCats, setShowAllCats] = useState(false);
-    const [isOwner, setIsOwner] = useState(false);
-    const [hasMatched, setHasMatched] = useState(false);
     const [canOffer, setCanOffer] = useState(false);
     const CAT_LIMIT = 2;
+    
+    let isOwner = false;
+    let hasMatched = false;
     
 
     useEffect(() => {
@@ -151,10 +152,12 @@ export default function TaskDetail({taskId}){
                 if(code === 0){
                     setTask(data);
                     if(userData.id === data.poster_id){
-                        setIsOwner(true);
+                        isOwner = true;
+                    }else{
+                        isOwner = false;
                     }
-                    setHasMatched(data.offers.some(o => o.is_matched));
-                    setCanOffer(!isOwner && !hasMatched && task.status === "Open");
+                    hasMatched = data.offers.some(o => o.is_matched);
+                    setCanOffer(!isOwner && !hasMatched && data.status === "Open");
                 }
             }catch(e){
                 console.error("Error fetching task details:", e);
@@ -408,7 +411,7 @@ export default function TaskDetail({taskId}){
                         <Stack direction="row" alignItems="center" spacing={1}>
                             <LocalOffer fontSize="small" sx={{ color: theme.palette.primary.main }} />
                             <Typography variant="h6" fontWeight={700}>
-                            {task?.offers.length} Offer{task?.offers.length === 1 ? "" : "s"}
+                                {task?.offers?.length} Offer{task?.offers?.length === 1 ? "" : "s"}
                             </Typography>
                         </Stack>
                         
