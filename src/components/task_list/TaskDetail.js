@@ -41,6 +41,7 @@ import { formatDateNZ } from "../../utils/time";
 import TaskAttachments from "./TaskAttachments";
 import OwnerOfferPanel from "./OwnerOfferPanel";
 import OfferList from "./OfferList";
+import OfferFormDialog from "./OfferFormDialog";
 
 
 const Gray = (props) => (
@@ -136,6 +137,7 @@ export default function TaskDetail({taskId}){
     const [task, setTask] = useState({});
     const [showAllCats, setShowAllCats] = useState(false);
     const [canOffer, setCanOffer] = useState(false);
+    const [offerOpen, setOfferOpen] = useState(false);
     const CAT_LIMIT = 2;
     
     let isOwner = false;
@@ -168,14 +170,19 @@ export default function TaskDetail({taskId}){
     }, [taskId]);
 
     const handleMakeOffer = () => {
-        // if (isAuthenticated) {
-        //     setOfferOpen(true);
-        // } else {
-        //     document.getElementById("loginTrigger")?.click();
-        // }
+        // validate whether user logins or not
+        if (true) {
+            setOfferOpen(true);
+        } else {
+            // document.getElementById("loginTrigger")?.click();
+        }
     };
 
     const afterMutate = () => {
+
+    }
+
+    const triggerRefetch = () => {
 
     }
 
@@ -451,9 +458,9 @@ export default function TaskDetail({taskId}){
                             )}
 
                             <OwnerOfferPanel
-                                taskId={task.id.toString()}
-                                status={task.status}
-                                offers={task.offers}
+                                taskId={task?.id.toString()}
+                                status={task?.status}
+                                offers={task?.offers}
                                 onMutate={afterMutate}
                             />
                         </>
@@ -470,9 +477,44 @@ export default function TaskDetail({taskId}){
                 {/* Comments */}
 
 
-
+                
 
             </Box>
+
+            {canOffer && (
+                <Box
+                sx={{
+                    position: { xs: "fixed", md: "sticky" },
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    p: 2,
+                    bgcolor: "#fff",
+                    borderTop: `1px solid ${theme.palette.divider}`,
+                    zIndex: 10,
+                }}
+                >
+                <Button
+                    onClick={handleMakeOffer}
+                    variant="contained"
+                    size="large"
+                    fullWidth
+                    sx={{
+                        textTransform: "none",
+                        backgroundColor: "#3fa46a",
+                        ":hover": { backgroundColor: "#36975d" },
+                    }}>
+                    Make an Offer
+                </Button>
+                </Box>
+            )}
+
+            <OfferFormDialog
+                taskId={task?.id}
+                open={offerOpen}
+                onClose={() => setOfferOpen(false)}
+                onSuccess={() => triggerRefetch()}
+            />
         </Box>
     );
 }
