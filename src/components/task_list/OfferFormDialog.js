@@ -30,6 +30,7 @@ import {
   IMAGE_MIME,
   DEFAULT_MAX_IMAGE_MB,
 } from "../../utils/media";
+import request from "../../utils/request";
 
 const OFFER_UPLOAD_LIMITS = {
   maxTotal: 3,
@@ -63,13 +64,47 @@ export default function OfferFormDialog({taskId, open, onClose, onSuccess}){
         }
     }, [open, reset]);
 
-
-    const handleFiles = () => {
-
+    const upload = async (files) => {
+        
+        const formData = new FormData();
+        files.forEach((f) => formData.append("Files", f));
+        try{
+            const res = await request.post("/task-media/upload", formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+            });
+        }catch(e){
+            console.log(e);
+        }
+        
     }
 
-    const onSubmit = () => {
+    const handleFiles = (e) => {
+        const picked = Array.from(e.target.files || []);
+        if (!picked.length) return;
 
+        const { accepted, rejected } = validateMediaFiles(
+            picked,
+            files.length,
+            OFFER_UPLOAD_LIMITS
+        );
+
+        if (rejected.length) {
+            const msg = summarizeRejections(rejected);
+            setFileError(msg);
+        } else {
+            setFileError(null);
+        }
+
+        if (accepted.length) {
+            setFiles((prev) => [...prev, ...accepted].slice(0, OFFER_UPLOAD_LIMITS.maxTotal));
+        }
+
+        e.currentTarget.value = "";
+    }
+
+    const onSubmit = async (vals) => {
+        console.log(vals);
+        await upload(files);
     }
 
     return (
@@ -86,7 +121,12 @@ export default function OfferFormDialog({taskId, open, onClose, onSuccess}){
                         {/* price */}
                         <Controller
                             name="price"
-                            control={control}
+                            control={control} 
+                            rules={{
+                                required: "Price is required",
+                                validate: (value) =>
+                                    Number(value) > 0 || "Price must be greater than 0",
+                            }}
                             render={({ field }) => (
                                 <TextField
                                     {...field}
