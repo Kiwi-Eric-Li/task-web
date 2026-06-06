@@ -40,7 +40,7 @@ const OFFER_UPLOAD_LIMITS = {
 const MAX_MESSAGE_WORDS = 300;
 
 
-export default function OfferFormDialog({taskId, open, onClose, onSuccess}){
+export default function OfferFormDialog({taskId, open, onClose, onSuccess, setAlertType, setAlertMsg}){
 
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
@@ -72,8 +72,13 @@ export default function OfferFormDialog({taskId, open, onClose, onSuccess}){
             const res = await request.post("/task-media/upload", formData, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
+            if(res.code === 0){
+                return res.data;
+            }else{
+                return "Upload failed";
+            }
         }catch(e){
-            console.log(e);
+            console.log("Error uploading files:", e);
         }
         
     }
@@ -104,7 +109,39 @@ export default function OfferFormDialog({taskId, open, onClose, onSuccess}){
 
     const onSubmit = async (vals) => {
         console.log(vals);
-        await upload(files);
+        setSubmitting(true);
+        let uploadUrls = [];
+        if(files.length > 0){
+            let res = await upload(files);
+            if(typeof res === "string"){
+                setFileError(res);
+                setSubmitting(false);
+                return;
+            }else{
+                uploadUrls = [...res];
+            }
+        }
+
+        try{
+            const res = await request.post(`/tasks/${taskId}/offers`, {
+                "price": Number(vals.price),
+                "message": vals.message,
+                "attachments": uploadUrls
+            });
+            if(res.code === 0){
+                setAlertType('success');
+                setAlertMsg(res.message);
+                onSuccess();
+                onClose();
+            }else{
+                setAlertType('error');
+                setAlertMsg(res.message);
+            }
+        }catch(e){
+            console.error(e);
+        }finally{
+            setSubmitting(false);
+        }
     }
 
     return (

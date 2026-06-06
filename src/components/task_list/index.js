@@ -122,11 +122,11 @@ export default function TaskList(){
     const tasks = useMemo(() => {
         if (!data) return [];
 
-        return data.flatMap(page => page.data);
+        return data?.flatMap(page => page.data);
     }, [data]);
 
     const isReachingEnd = useMemo(() => {
-        if (!data || data.length === 0) return false;
+        if (!data || data?.length === 0) return false;
         const lastPage = data[data.length - 1];
         return lastPage.pagination.pageNum >= lastPage.pagination.totalPages;
     }, [data]);

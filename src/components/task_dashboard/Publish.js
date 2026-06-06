@@ -57,8 +57,6 @@ const UPLOAD_LIMITS = {
     maxVideoMB: DEFAULT_MAX_VIDEO_MB,
 };
 
-
-
 export default function TaskPublish(){
     const navigate = useNavigate();
     const {categories} = useSelector((state) => state.categories);

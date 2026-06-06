@@ -5,7 +5,7 @@ const BaseUrl = process.env.REACT_APP_API_BASE_URL;
 
 const service = axios.create({
     baseURL: `${BaseUrl}/api`,
-    timeout: 15000
+    timeout: 30000
 });
 
 // 刷新状态锁

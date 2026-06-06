@@ -1,7 +1,7 @@
 import {useState, useEffect} from 'react'
 import {useNavigate} from "react-router-dom"
 import {useSelector} from 'react-redux';
-
+import { createPortal } from "react-dom";
 import {
   AccessTime,
   AttachMoney,
@@ -31,6 +31,7 @@ import {
   useTheme,
   ImageList,
   ImageListItem,
+  Snackbar,
 } from "@mui/material";
 
 import request from "../../utils/request"
@@ -138,6 +139,9 @@ export default function TaskDetail({taskId}){
     const [showAllCats, setShowAllCats] = useState(false);
     const [canOffer, setCanOffer] = useState(false);
     const [offerOpen, setOfferOpen] = useState(false);
+    const [openAlert, setOpenAlert] = useState(false);
+    const [alertType, setAlertType] = useState("success");
+    const [alertMsg, setAlertMsg] = useState("");
     const CAT_LIMIT = 2;
     
     let isOwner = false;
@@ -186,8 +190,21 @@ export default function TaskDetail({taskId}){
 
     }
 
+    const snackbar = (
+        <Snackbar
+            open={openAlert}
+            autoHideDuration={3000}
+            onClose={() => setOpenAlert(false)}
+            anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            sx={{ zIndex: 99999 }}>
+            <Alert severity={alertType}>{alertMsg}</Alert>
+        </Snackbar>
+    );
+
+
     return (
-        <Box
+        <>
+            <Box
             sx={{
                 height: "100%",
                 display: "flex",
@@ -512,9 +529,14 @@ export default function TaskDetail({taskId}){
             <OfferFormDialog
                 taskId={task?.id}
                 open={offerOpen}
+                setAlertType={(flag) => setAlertType(flag)}
+                setAlertMsg={(msg) => setAlertMsg(msg)}
                 onClose={() => setOfferOpen(false)}
                 onSuccess={() => triggerRefetch()}
             />
-        </Box>
+            </Box>
+            {openAlert && createPortal(snackbar, document.body)}
+        </>
+        
     );
 }
