@@ -108,7 +108,6 @@ export default function OfferFormDialog({taskId, open, onClose, onSuccess, setAl
     }
 
     const onSubmit = async (vals) => {
-        console.log(vals);
         setSubmitting(true);
         let uploadUrls = [];
         if(files.length > 0){
