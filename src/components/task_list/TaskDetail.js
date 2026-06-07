@@ -133,20 +133,23 @@ const DescriptionSection = styled(Paper)(({ theme }) => ({
 }));
 
 export default function TaskDetail({taskId}){
+
+    const theme = useTheme();
+
     const {userData} = useSelector(state => state.userData || {});
     const navigate = useNavigate();
     const [task, setTask] = useState({});
     const [showAllCats, setShowAllCats] = useState(false);
-    const [canOffer, setCanOffer] = useState(false);
+    // const [canOffer, setCanOffer] = useState(false);
     const [offerOpen, setOfferOpen] = useState(false);
     const [openAlert, setOpenAlert] = useState(false);
     const [alertType, setAlertType] = useState("success");
     const [alertMsg, setAlertMsg] = useState("");
     const CAT_LIMIT = 2;
     
-    let isOwner = false;
-    let hasMatched = false;
-    
+    const isOwner = userData.id === task?.poster_id;
+    const hasMatched = task?.offers?.some(o => o.is_matched);
+    const canOffer = !isOwner && !hasMatched && task?.status === "Open";
 
     useEffect(() => {
         // Simulate an API call to fetch task details
@@ -157,13 +160,12 @@ export default function TaskDetail({taskId}){
                 const {code, data} = response;
                 if(code === 0){
                     setTask(data);
-                    if(userData.id === data.poster_id){
-                        isOwner = true;
-                    }else{
-                        isOwner = false;
-                    }
-                    hasMatched = data.offers.some(o => o.is_matched);
-                    setCanOffer(!isOwner && !hasMatched && data.status === "Open");
+                    // if(userData.id === data.poster_id){
+                    //     isOwner = true;
+                    // }else{
+                    //     isOwner = false;
+                    // }
+                    // setCanOffer(!isOwner && !hasMatched && data.status === "Open");
                 }
             }catch(e){
                 console.error("Error fetching task details:", e);
@@ -457,30 +459,30 @@ export default function TaskDetail({taskId}){
                         </Stack>
 
                         <Divider sx={{ mb: 2 }} />
-
+                        
                         {isOwner ? (
-                        <>
-                            {hasMatched && task.status === "Matching" && (
-                                <Paper
-                                    sx={{
-                                        p: 1.5,
-                                        mb: 2,
-                                        bgcolor: alpha(theme.palette.info.main, 0.08),
-                                        border: `1px solid ${alpha(theme.palette.info.main, 0.25)}`,
-                                    }}>
-                                    <Typography variant="body2">
-                                    You’ve selected a preferred offer. Waiting for the tasker to confirm. You can cancel the selection to choose another offer.
-                                    </Typography>
-                                </Paper>
-                            )}
+                            <>
+                                {hasMatched && task.status === "Matching" && (
+                                    <Paper
+                                        sx={{
+                                            p: 1.5,
+                                            mb: 2,
+                                            bgcolor: alpha(theme.palette.info.main, 0.08),
+                                            border: `1px solid ${alpha(theme.palette.info.main, 0.25)}`,
+                                        }}>
+                                        <Typography variant="body2">
+                                        You’ve selected a preferred offer. Waiting for the tasker to confirm. You can cancel the selection to choose another offer.
+                                        </Typography>
+                                    </Paper>
+                                )}
 
-                            <OwnerOfferPanel
-                                taskId={task?.id.toString()}
-                                status={task?.status}
-                                offers={task?.offers}
-                                onMutate={afterMutate}
-                            />
-                        </>
+                                <OwnerOfferPanel
+                                    taskId={task?.id}
+                                    status={task?.status}
+                                    offers={task?.offers}
+                                    onMutate={afterMutate}
+                                />
+                            </>
                         ) : (
                             <OfferList
                                 offers={task.offers}
