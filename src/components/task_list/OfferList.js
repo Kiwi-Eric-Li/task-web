@@ -14,8 +14,9 @@ import {
 import { useTheme, alpha } from "@mui/material/styles";
 import { AccessTime, Star, ExpandMore, ExpandLess } from "@mui/icons-material";
 
-
+import UserRatingInline from "./UserRatingInline";
 import TaskAttachments from "./TaskAttachments";
+import {formatDateNZ} from "../../utils/time";
 
 const OfferRowItem = ({o}) => {
     const theme = useTheme();
@@ -65,6 +66,11 @@ const OfferRowItem = ({o}) => {
                         )}
                     </Stack>
                     
+                    <UserRatingInline
+                        value={o?.tasker_rating?.avg}
+                        count={o?.tasker_rating?.count}
+                    />
+
                     {o.message && (
                         <Typography
                             variant="body2"
@@ -74,12 +80,25 @@ const OfferRowItem = ({o}) => {
                         </Typography>
                     )}
 
-                    {JSON.parse(o.attachments)?.length && (
+                    {(JSON.parse(o.attachments).length > 0) && (
                         <Box mt={1}>
                             <TaskAttachments attachments={JSON.parse(o.attachments)} />
                         </Box>
                     )}
 
+                    <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{
+                            mt: 0.5,
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 0.5,
+                        }}
+                    >
+                        <AccessTime sx={{ fontSize: 14 }} />
+                        {formatDateNZ(o.created_at, { withTime: true })}
+                    </Typography>
 
                 </Box>
             </Stack>
