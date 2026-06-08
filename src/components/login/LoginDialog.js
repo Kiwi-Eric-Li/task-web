@@ -1,4 +1,5 @@
 import {useState} from 'react'
+import { createPortal } from "react-dom";
 import {useDispatch} from 'react-redux';
 import {
   Dialog,
@@ -12,7 +13,9 @@ import {
   Typography,
   Link,
   Checkbox, 
-  FormControlLabel
+  FormControlLabel,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 
@@ -20,7 +23,7 @@ import service from "../../utils/request";
 import { tokenService } from "../../utils/token";
 import {setUserData} from '../../store/modules/userReducer'
 
-export default function LoginDialog({open, onClose, onLogin, setOpenAlert, setAlertType, setAlertMsg}){
+export default function LoginDialog({open, onClose}){
     const dispatch = useDispatch();
 
     const [email, setEmail] = useState('');
@@ -28,6 +31,10 @@ export default function LoginDialog({open, onClose, onLogin, setOpenAlert, setAl
     const [checked, setChecked] = useState(false);
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
+
+    const [openAlert, setOpenAlert] = useState(false);
+    const [alertType, setAlertType] = useState("success");
+    const [alertMsg, setAlertMsg] = useState("");
     
     const validate = () => {
         const newErrors = {};
@@ -76,6 +83,18 @@ export default function LoginDialog({open, onClose, onLogin, setOpenAlert, setAl
             setLoading(false);
         }
     }
+
+    const snackbar = (
+        <Snackbar
+            open={openAlert}
+            autoHideDuration={3000}
+            onClose={() => setOpenAlert(false)}
+            anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            sx={{ zIndex: 99999 }}>
+            <Alert severity={alertType}>{alertMsg}</Alert>
+        </Snackbar>
+    );
+
 
     return (
         <>
@@ -158,6 +177,7 @@ export default function LoginDialog({open, onClose, onLogin, setOpenAlert, setAl
                         fontSize: '16px'
                     }}>Do not have an account? <Link href="register" underline="hover" sx={{textTransform: 'none', color: '#4b5563', fontWeight: 'bold'}}>Sign up</Link></Typography>
             </Dialog>
+            {openAlert && createPortal(snackbar, document.body)}
         </>
         
     );

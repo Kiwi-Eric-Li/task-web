@@ -43,6 +43,7 @@ import TaskAttachments from "./TaskAttachments";
 import OwnerOfferPanel from "./OwnerOfferPanel";
 import OfferList from "./OfferList";
 import OfferFormDialog from "./OfferFormDialog";
+import {tokenService} from "../../utils/token";
 
 
 const Gray = (props) => (
@@ -177,9 +178,10 @@ export default function TaskDetail({taskId}){
 
     const handleMakeOffer = () => {
         // validate whether user logins or not
-        if (true) {
+        if (tokenService.getAccessToken()) {
             setOfferOpen(true);
         } else {
+            
             // document.getElementById("loginTrigger")?.click();
         }
     };

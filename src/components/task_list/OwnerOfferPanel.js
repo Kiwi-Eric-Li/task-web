@@ -54,21 +54,21 @@ export default function OwnerOfferPanel({taskId, status, offers, onMutate}){
             };
             if (phase === "matching") {
                 return (
-                <Box
-                    sx={{
-                    ...base,
-                    backgroundColor: alpha(theme.palette.info.main, 0.06),
-                    border: `1px solid ${alpha(theme.palette.info.main, 0.22)}`,
-                    }}
-                >
-                    <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
-                        <InfoOutlined fontSize="small" color="info" />
-                        <Typography variant="body2" color="text.secondary">
-                            You have selected a preferred offer (waiting for the tasker to confirm).
-                            You can cancel it below if needed.
-                        </Typography>
-                    </Stack>
-                </Box>
+                    <Box
+                        sx={{
+                        ...base,
+                        backgroundColor: alpha(theme.palette.info.main, 0.06),
+                        border: `1px solid ${alpha(theme.palette.info.main, 0.22)}`,
+                        }}
+                    >
+                        <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
+                            <InfoOutlined fontSize="small" color="info" />
+                            <Typography variant="body2" color="text.secondary">
+                                You have selected a preferred offer (waiting for the tasker to confirm).
+                                You can cancel it below if needed.
+                            </Typography>
+                        </Stack>
+                    </Box>
                 );
             }
             if (phase === "inprogress" && preferred) {
@@ -84,7 +84,7 @@ export default function OwnerOfferPanel({taskId, status, offers, onMutate}){
                         <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
                             <InfoOutlined fontSize="small" color="success" />
                             <Typography variant="body2" color="text.secondary">
-                            You’re matched with <strong>{preferred.tasker_display_name}</strong>. Work is in progress.
+                            You’re matched with <strong>{preferred?.user?.username}</strong>. Work is in progress.
                             </Typography>
                         </Stack>
                     </Box>
@@ -105,7 +105,7 @@ export default function OwnerOfferPanel({taskId, status, offers, onMutate}){
                         <InfoOutlined fontSize="small" color="primary" />
                         <Typography variant="body2" color="text.secondary">
                             This task was completed with{" "}
-                            <strong>{preferred.tasker_display_name}</strong>.
+                            <strong>{preferred?.user?.username}</strong>.
                         </Typography>
                     </Stack>
                 </Box>
@@ -115,7 +115,7 @@ export default function OwnerOfferPanel({taskId, status, offers, onMutate}){
         })();
 
     const filtered = (offers ?? [])
-        .filter((o) => !onlyWithAtt || (o.attachments?.length ?? 0) > 0)
+        .filter((o) => !onlyWithAtt || (JSON.parse(o.attachments)?.length ?? 0) > 0)
         .sort((a, b) => {
             if (sortBy === "latest")
                 return +new Date(b.created_at) - +new Date(a.created_at);
@@ -147,10 +147,10 @@ export default function OwnerOfferPanel({taskId, status, offers, onMutate}){
                     <Chip size="small" variant="outlined" label={`${offers?.length ?? 0}`} />
                     {hasMatched && (
                         <Chip
-                        size="small"
-                        color={phase === "matching" ? "primary" : "success"}
-                        label={phase === "matching" ? "Preferred selected" : "Matched"}
-                        sx={{ ml: 0.5 }}
+                            size="small"
+                            color={phase === "matching" ? "primary" : "success"}
+                            label={phase === "matching" ? "Preferred selected" : "Matched"}
+                            sx={{ ml: 0.5 }}
                         />
                     )}
                 </Stack>
@@ -165,11 +165,11 @@ export default function OwnerOfferPanel({taskId, status, offers, onMutate}){
                         value={sortBy}
                         onChange={(e) => setSortBy(e.target.value)}
                         sx={{
-                        minWidth: { xs: 120, sm: 130 },
-                        "& .MuiInputBase-root": {
-                            height: 36,
-                            alignItems: "center",
-                        },
+                            minWidth: { xs: 120, sm: 130 },
+                            "& .MuiInputBase-root": {
+                                height: 36,
+                                alignItems: "center",
+                            },
                         }}
                     >
                         <MenuItem value="latest">Newest</MenuItem>
@@ -182,14 +182,14 @@ export default function OwnerOfferPanel({taskId, status, offers, onMutate}){
                         value={onlyWithAtt ? "att" : ""}
                         onChange={() => setOnlyWithAtt((p) => !p)}
                         sx={{
-                        height: 36,
-                        display: "flex",
-                        alignItems: "center",
-                        "& .MuiToggleButton-root": {
-                            padding: "0 10px",
-                            minHeight: 36,
-                            lineHeight: 1.2,
-                        },
+                            height: 36,
+                            display: "flex",
+                            alignItems: "center",
+                            "& .MuiToggleButton-root": {
+                                padding: "0 10px",
+                                minHeight: 36,
+                                lineHeight: 1.2,
+                            },
                         }}
                     >
                         <ToggleButton value="att">With attachments</ToggleButton>

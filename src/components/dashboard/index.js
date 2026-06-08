@@ -1,6 +1,5 @@
-import React, {useState, useEffect} from 'react';
+import {useState, useEffect} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
-import { createPortal } from "react-dom";
 import {Outlet, Link} from "react-router-dom"
 import {
   AppBar,
@@ -15,8 +14,6 @@ import {
   ListItemIcon, 
   Box,
   Container,
-  Snackbar,
-  Alert,
   Tooltip
 } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
@@ -31,30 +28,23 @@ import BackToTop from './BackToTop';
 import LoginDialog from '../login/LoginDialog';
 import {setUserData} from '../../store/modules/userReducer'
 import {setCategories} from '../../store/modules/categoriesReducer'
+import { openLoginDialog, closeLoginDialog } from "../../store/modules/loginDialogSlice";
 import UserMenu from './UserMenu'
 import request from '../../utils/request';
 
 export default function DashboardIndex(){
     const dispatch = useDispatch();
     const {userData} = useSelector(state => state.userData || {});
+    const loginDialogOpen = useSelector(
+        (state) => state.loginDialog.open
+    );
 
-    const [open, setOpen] = React.useState(false);
-    const [loginOpen, setLoginOpen] = useState(false);
-    const [openAlert, setOpenAlert] = useState(false);
-    const [alertType, setAlertType] = useState("success");
-    const [alertMsg, setAlertMsg] = useState("");
 
+    const [open, setOpen] = useState(false);
+    
     const toggleDrawer = () => {
         setOpen(!open);
     };
-
-    const handleLoginIn = () => {
-        setLoginOpen(true);
-    }
-
-    const onClose = () => {
-        setLoginOpen(false);
-    }
 
     useEffect(() => {
         let userData = localStorage.getItem("user") || null;
@@ -79,18 +69,6 @@ export default function DashboardIndex(){
         getCategories();
 
     }, []);
-
-
-    const snackbar = (
-        <Snackbar
-            open={openAlert}
-            autoHideDuration={3000}
-            onClose={() => setOpenAlert(false)}
-            anchorOrigin={{ vertical: "top", horizontal: "center" }}
-            sx={{ zIndex: 99999 }}>
-            <Alert severity={alertType}>{alertMsg}</Alert>
-        </Snackbar>
-    );
 
     return (
         <>
@@ -146,7 +124,7 @@ export default function DashboardIndex(){
                             userData?.username ? <UserMenu userData={userData} />
                             : <Button 
                                 variant="contained" 
-                                onClick={handleLoginIn}
+                                onClick={() => dispatch(openLoginDialog())}
                                 sx={{
                                     borderRadius: '50px', 
                                     textTransform: 'none', 
@@ -212,8 +190,7 @@ export default function DashboardIndex(){
                 </Box>
             </ThemeProvider>
             <BackToTop />
-            <LoginDialog open={loginOpen} onClose={onClose} setOpenAlert={setOpenAlert} setAlertType={setAlertType} setAlertMsg={setAlertMsg}/>
-            {openAlert && createPortal(snackbar, document.body)}
+            <LoginDialog open={loginDialogOpen} onClose={() => dispatch(closeLoginDialog())} />
         </>
     )
 }

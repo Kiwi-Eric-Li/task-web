@@ -33,7 +33,7 @@ service.interceptors.response.use(
         if(error.response?.status !== 401){
             return Promise.reject(error);
         }
-        // 防止无限循环
+        // prevent infinite loops
         if(originalRequest._retry){
             return Promise.reject(error);
         }

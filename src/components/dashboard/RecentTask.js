@@ -67,7 +67,7 @@ export default function RecentTask(){
         const getTheFirstTasks = async () => {
             try{
                 const {code, data} = await request("/tasks/some");
-                console.log(code, data);
+                
                 if(code === 0){
                     setTasks(data);
                 }
