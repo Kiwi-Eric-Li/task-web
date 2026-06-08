@@ -42,6 +42,91 @@ export default function OwnerOfferPanel({taskId, status, offers, onMutate}){
     const preferred = offers?.find((o) => o.is_matched) ?? null;
     const hasMatched = !!preferred;
 
+    const [openOthers, setOpenOthers] = useState(!hasMatched);
+
+    const banner = hasMatched &&
+        (() => {
+            const base = {
+                mt: 1.5,
+                px: 1.5,
+                py: 1,
+                borderRadius: 1,
+            };
+            if (phase === "matching") {
+                return (
+                <Box
+                    sx={{
+                    ...base,
+                    backgroundColor: alpha(theme.palette.info.main, 0.06),
+                    border: `1px solid ${alpha(theme.palette.info.main, 0.22)}`,
+                    }}
+                >
+                    <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
+                        <InfoOutlined fontSize="small" color="info" />
+                        <Typography variant="body2" color="text.secondary">
+                            You have selected a preferred offer (waiting for the tasker to confirm).
+                            You can cancel it below if needed.
+                        </Typography>
+                    </Stack>
+                </Box>
+                );
+            }
+            if (phase === "inprogress" && preferred) {
+                return (
+                <>
+                    <Box
+                        sx={{
+                            ...base,
+                            backgroundColor: alpha(theme.palette.success.main, 0.08),
+                            border: `1px solid ${alpha(theme.palette.success.main, 0.25)}`,
+                        }}
+                    >
+                        <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
+                            <InfoOutlined fontSize="small" color="success" />
+                            <Typography variant="body2" color="text.secondary">
+                            You’re matched with <strong>{preferred.tasker_display_name}</strong>. Work is in progress.
+                            </Typography>
+                        </Stack>
+                    </Box>
+
+                </>
+                );
+            }
+            if (phase === "completed" && preferred) {
+                return (
+                <Box
+                    sx={{
+                        ...base,
+                        backgroundColor: alpha(theme.palette.primary.main, 0.07),
+                        border: `1px solid ${alpha(theme.palette.primary.main, 0.22)}`,
+                    }}
+                >
+                    <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
+                        <InfoOutlined fontSize="small" color="primary" />
+                        <Typography variant="body2" color="text.secondary">
+                            This task was completed with{" "}
+                            <strong>{preferred.tasker_display_name}</strong>.
+                        </Typography>
+                    </Stack>
+                </Box>
+                );
+            }
+            return null;
+        })();
+
+    const filtered = (offers ?? [])
+        .filter((o) => !onlyWithAtt || (o.attachments?.length ?? 0) > 0)
+        .sort((a, b) => {
+            if (sortBy === "latest")
+                return +new Date(b.created_at) - +new Date(a.created_at);
+            if (sortBy === "priceAsc") return (a.price ?? 0) - (b.price ?? 0);
+            return (b.price ?? 0) - (a.price ?? 0);
+        });
+
+    const others = preferred
+        ? filtered.filter((o) => o.id !== preferred.id)
+        : filtered;
+
     const pinnedTitle =
         phase === "inprogress" || phase === "completed"
         ? "Matched offer"
@@ -111,7 +196,8 @@ export default function OwnerOfferPanel({taskId, status, offers, onMutate}){
                     </ToggleButtonGroup>
                 </Stack>
             </Stack>
-
+            
+            {banner}
             
             <Divider sx={{ my: 2 }} />
             {preferred && (
@@ -133,9 +219,52 @@ export default function OwnerOfferPanel({taskId, status, offers, onMutate}){
                     <Divider sx={{ my: 2 }} />
                 </Box>
             )}
-        
-
-
+            <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
+                <Typography variant="subtitle2" fontWeight={600}>
+                    Other offers
+                </Typography>
+                <Chip size="small" variant="outlined" label={others.length} />
+                <Box flex={1} />
+                {others.length > 0 && (
+                    <Tooltip title={openOthers ? "Collapse" : "Expand"}>
+                        <IconButton
+                            size="small"
+                            onClick={() => setOpenOthers((v) => !v)}
+                            aria-label={openOthers ? "Collapse list" : "Expand list"}
+                        >
+                        {openOthers ? <ExpandLess /> : <ExpandMore />}
+                        </IconButton>
+                    </Tooltip>
+                )}
+            </Stack>
+            
+            <Collapse in={openOthers} timeout="auto" unmountOnExit>
+                <Box
+                    sx={{
+                        maxHeight: 420,
+                        overflowY: "auto",
+                        pr: 0.5,
+                        "&::-webkit-scrollbar": { width: 6 },
+                        "&::-webkit-scrollbar-thumb": {
+                        backgroundColor: alpha(theme.palette.text.primary, 0.2),
+                        borderRadius: 3,
+                        },
+                    }}>
+                    <OwnerOfferList
+                        taskId={taskId}
+                        offers={others}
+                        hasMatched={hasMatched}
+                        onMutate={onMutate}
+                        status={status}
+                        allowActions={allowActions}
+                    />
+                </Box>
+            </Collapse>
+            {!offers?.length && (
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1, textAlign: "center" }}>
+                No offers yet.
+                </Typography>
+            )}
         </Box>
     )
 }

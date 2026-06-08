@@ -2,8 +2,8 @@
 
 
 
-export default function OwnerOfferList(){
+export default function OwnerOfferList({taskId, offers, hasMatched, onMutate, status, allowActions = true}){
     return (
-        <div>OwnerOfferList</div>
+        <div>{taskId}-{offers.length}</div>
     )
 }
