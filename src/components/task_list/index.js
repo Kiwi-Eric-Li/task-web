@@ -216,7 +216,6 @@ export default function TaskList(){
                                                 const firstCategory = t.categories[0];
                                                 const extraCount = t.categories.length - 1;
                                                 const hasMoreCats = extraCount > 0;
-                                                t.offer_count = 0;
                                                 t.comment_count = 0;
 
                                                 return (
@@ -247,8 +246,8 @@ export default function TaskList(){
 
                                                                 <Box
                                                                     sx={{
-                                                                        mt: 2, // <-- pushed further down after removing remote/onsite chip
-                                                                        minHeight: 24, // <-- keeps layout predictable even if single-line vs multi-line
+                                                                        mt: 2,
+                                                                        minHeight: 24,
                                                                         display: "flex",
                                                                         alignItems: "flex-start",
                                                                     }}>
@@ -263,7 +262,6 @@ export default function TaskList(){
                                                             <StatusBadge status={t.status} variant="box" />
 
                                                             <Box flex={1} minWidth={0} sx={{ pt: 3, color: 'rgb(115, 115, 115)' }}>
-                                                                {/* title */}
                                                                 <Typography
                                                                     variant="subtitle2"
                                                                     sx={{
@@ -276,7 +274,6 @@ export default function TaskList(){
                                                                     }}>
                                                                     {t.title}
                                                                 </Typography>
-                                                                {/* categories */}
                                                                 {t.categories.length > 0 && (
                                                                     <Stack
                                                                         direction="row"
@@ -308,7 +305,6 @@ export default function TaskList(){
                                                                     direction="column"
                                                                     spacing={1}
                                                                     mt={1}>
-                                                                    {/* location */}
                                                                     <Stack direction="row" alignItems="center" spacing={0.5}>
                                                                         <Box sx={{ width: 20, display: "flex", justifyContent: "center" }}>
                                                                             <LocationOn sx={{ fontSize: 16 }} />
@@ -317,8 +313,6 @@ export default function TaskList(){
                                                                             {t.location === "" ? "Remote" : t.location}
                                                                         </Typography>
                                                                     </Stack>
-
-                                                                    {/* date */}
                                                                     {t.schedule_time && (
                                                                         <Stack direction="row" alignItems="center" spacing={0.5}>
                                                                             <Box sx={{ width: 20, display: "flex", justifyContent: "center" }}>
@@ -330,7 +324,6 @@ export default function TaskList(){
                                                                         </Stack>
                                                                     )}
 
-                                                                    {/* offers + comments */}
                                                                     <Stack direction="row" spacing={2}>
                                                                         <Stack direction="row" spacing={0.4} alignItems="center">
                                                                             <Groups sx={{ fontSize: 16 }} />
