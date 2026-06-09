@@ -100,10 +100,31 @@ export default function TaskList(){
         console.log("searchTitle======", title);
     }
 
+    const afterMade = (taskid, count) => {
+        mutate(
+            currentData => {
+                if (!currentData) return currentData;
+                return currentData.map(page => ({
+                    ...page,
+                    data: page.data.map(task =>
+                        task.id === taskid
+                            ? {
+                                ...task,
+                                offer_count: count,
+                            }
+                            : task
+                    ),
+                }));
+            },
+            false
+        );
+    };
+
     const {
         data,
         size,
         setSize,
+        mutate,
         isLoading,
         isValidating,
     } = useSWRInfinite(
@@ -368,7 +389,7 @@ export default function TaskList(){
                                 
                                 {/* right side: task-detail / map */}
                                 {selectedId ? (
-                                    <TaskDetail taskId={selectedId} />
+                                    <TaskDetail taskId={selectedId} afterMade={afterMade}/>
                                 ) : (
                                     <Box ref={detailRef} sx={rightPaneSx}>
                                         <TaskMap />

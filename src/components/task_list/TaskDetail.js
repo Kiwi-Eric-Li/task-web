@@ -134,7 +134,7 @@ const DescriptionSection = styled(Paper)(({ theme }) => ({
   borderLeft: `4px solid ${theme.palette.primary.main}`,
 }));
 
-export default function TaskDetail({taskId}){
+export default function TaskDetail({taskId, afterMade}){
     const dispatch = useDispatch();
     const theme = useTheme();
 
@@ -142,7 +142,6 @@ export default function TaskDetail({taskId}){
     const navigate = useNavigate();
     const [task, setTask] = useState({});
     const [showAllCats, setShowAllCats] = useState(false);
-    // const [canOffer, setCanOffer] = useState(false);
     const [offerOpen, setOfferOpen] = useState(false);
     const [openAlert, setOpenAlert] = useState(false);
     const [alertType, setAlertType] = useState("success");
@@ -189,6 +188,7 @@ export default function TaskDetail({taskId}){
             const res = await request.get(`/tasks/${taskId}/offers/refetch`);
             if(res.code === 0){
                 res.data && setTask({...task, offers: res.data});
+                afterMade(taskId, res.data.length);
             }
         }catch(e){
             console.error(e);
