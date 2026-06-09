@@ -1,6 +1,6 @@
 import {useState, useEffect} from 'react'
 import {useNavigate} from "react-router-dom"
-import {useSelector} from 'react-redux';
+import {useSelector, useDispatch} from 'react-redux';
 import { createPortal } from "react-dom";
 import {
   AccessTime,
@@ -44,6 +44,7 @@ import OwnerOfferPanel from "./OwnerOfferPanel";
 import OfferList from "./OfferList";
 import OfferFormDialog from "./OfferFormDialog";
 import {tokenService} from "../../utils/token";
+import { openLoginDialog } from "../../store/modules/loginDialogSlice";
 
 
 const Gray = (props) => (
@@ -134,7 +135,7 @@ const DescriptionSection = styled(Paper)(({ theme }) => ({
 }));
 
 export default function TaskDetail({taskId}){
-
+    const dispatch = useDispatch();
     const theme = useTheme();
 
     const {userData} = useSelector(state => state.userData || {});
@@ -161,12 +162,6 @@ export default function TaskDetail({taskId}){
                 const {code, data} = response;
                 if(code === 0){
                     setTask(data);
-                    // if(userData.id === data.poster_id){
-                    //     isOwner = true;
-                    // }else{
-                    //     isOwner = false;
-                    // }
-                    // setCanOffer(!isOwner && !hasMatched && data.status === "Open");
                 }
             }catch(e){
                 console.error("Error fetching task details:", e);
@@ -181,8 +176,7 @@ export default function TaskDetail({taskId}){
         if (tokenService.getAccessToken()) {
             setOfferOpen(true);
         } else {
-            
-            // document.getElementById("loginTrigger")?.click();
+            dispatch(openLoginDialog());
         }
     };
 
@@ -190,8 +184,15 @@ export default function TaskDetail({taskId}){
 
     }
 
-    const triggerRefetch = () => {
-
+    const triggerRefetch = async () => {
+        try{
+            const res = await request.get(`/tasks/${taskId}/offers/refetch`);
+            if(res.code === 0){
+                res.data && setTask({...task, offers: res.data});
+            }
+        }catch(e){
+            console.error(e);
+        }
     }
 
     const snackbar = (
