@@ -310,28 +310,29 @@ export default function OwnerOfferList({taskId, offers, hasMatched, onMutate, st
                     {actionError && <Alert severity="error" sx={{ mt: 1 }}>{actionError}</Alert>}
                     </DialogContent>
                     <DialogActions sx={{ p: 2 }}>
-                    <Button onClick={closeDialog} disabled={accepting}>
-                        Cancel
-                    </Button>
-                    <Button
-                        variant="contained"
-                        disabled={accepting}
-                        onClick={async () => {
-                            try {
-                                setActionError(null);
-                                await acceptOffer({ offer_id: dialog.offer.id });
-                                setDialog(null);
-                                onMutate();
-                            } catch (err) {
-                                setActionError(err);
+                        <Button onClick={closeDialog} disabled={accepting} sx={{textTransform: 'none'}}>
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="contained"
+                            disabled={accepting}
+                            onClick={async () => {
+                                try {
+                                    setActionError(null);
+                                    await acceptOffer({ offer_id: dialog.offer.id });
+                                    setDialog(null);
+                                    onMutate();
+                                } catch (err) {
+                                    setActionError(err);
+                                }
+                            }}
+                            startIcon={
+                                accepting ? <CircularProgress size={16} sx={{ color: "inherit" }} /> : undefined
                             }
-                        }}
-                        startIcon={
-                            accepting ? <CircularProgress size={16} sx={{ color: "inherit" }} /> : undefined
-                        }
-                    >
-                        Confirm
-                    </Button>
+                            sx={{textTransform: 'none'}}
+                        >
+                            Confirm
+                        </Button>
                     </DialogActions>
                 </>
                 )}

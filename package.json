@@ -24,7 +24,8 @@
     "swr": "^2.3.6",
     "maplibre-gl": "^5.12.0",
     "react-map-gl": "^8.1.0",
-    "react-hook-form": "^7.45.3"
+    "react-hook-form": "^7.45.3",
+    "@microsoft/signalr": "^9.0.6"
   },
   "scripts": {
     "start": "react-scripts start",
