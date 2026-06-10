@@ -1,3 +1,4 @@
+import {useEffect} from 'react'
 import {BrowserRouter, Routes, Route, Navigate} from 'react-router-dom'
 
 import DashboardIndex from "./components/dashboard/index"
@@ -16,6 +17,7 @@ import TaskIndex from "./components/dashboard/TaskIndex"
 import TaskList from "./components/task_list"
 import TaskPublish from "./components/task_dashboard/Publish"
 import {tokenService} from "./utils/token"
+import taskNotificationHub from "./utils/signalr/task_notification_hub"
 
 const PrivateRoute = ({ children }) => {
   const token = tokenService.getAccessToken();
@@ -31,6 +33,10 @@ const PrivateRoute = ({ children }) => {
 
 export default function ResponsiveAppBar() {
   
+  useEffect(() => {
+    taskNotificationHub.start();
+  }, []);
+
   return (
     <BrowserRouter>
       <Routes>

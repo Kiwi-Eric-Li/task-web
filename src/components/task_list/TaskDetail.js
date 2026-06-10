@@ -45,6 +45,8 @@ import OfferList from "./OfferList";
 import OfferFormDialog from "./OfferFormDialog";
 import {tokenService} from "../../utils/token";
 import { openLoginDialog } from "../../store/modules/loginDialogSlice";
+import taskNotificationHub from "../../utils/signalr/task_notification_hub";
+import {SignalREvents} from "../../utils/signalr/event_names";
 
 
 const Gray = (props) => (
@@ -153,9 +155,8 @@ export default function TaskDetail({taskId, afterMade}){
     const canOffer = !isOwner && !hasMatched && task?.status === "Open";
 
     useEffect(() => {
-        // Simulate an API call to fetch task details
+        
         const fetchTask = async () => {
-            // Replace this with your actual API call
             try{
                 const response = await request(`/tasks/${taskId}`);
                 const {code, data} = response;
@@ -168,7 +169,39 @@ export default function TaskDetail({taskId, afterMade}){
         };
 
         fetchTask();
+
+        return () => {
+            taskNotificationHub.invoke(
+                SignalREvents.LeaveTask,
+                taskId
+            );
+        };
     }, [taskId]);
+
+    useEffect(() => {
+        
+        const handler = data => {
+            console.log("handler==============", data);
+        };
+
+        await taskNotificationHub.invoke(
+            SignalREvents.JOIN_ALL
+            
+        );
+
+
+        taskNotificationHub.on(
+            SignalREvents.OFFER_ACCEPTED,
+            handler
+        );
+
+        return () => {
+            taskNotificationHub.off(
+                SignalREvents.OFFER_ACCEPTED,
+                handler
+            );
+        };
+    }, []);
 
     const handleMakeOffer = () => {
         // validate whether user logins or not
