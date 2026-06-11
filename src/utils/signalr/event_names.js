@@ -1,6 +1,8 @@
 export const SignalREvents = {
-    JOIN_ALL: "JoinAll",
-    OFFER_ACCEPTED: "OfferAccepted",
-    JOINED_TASK: "JoinedTask",
-    LEAVE_TASK: "LeaveTask",
+    TaskOfferNew: "task.offer.new",
+    TaskOfferAccepted: "task.offer.accepted",
+    JOINEDTASK: "joined.task",
+    LeftTask: "left.task",
+    JoinedFeed: "joined.feed",
+    LeftFeed: "left.feed",
 }

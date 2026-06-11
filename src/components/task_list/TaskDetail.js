@@ -47,6 +47,7 @@ import {tokenService} from "../../utils/token";
 import { openLoginDialog } from "../../store/modules/loginDialogSlice";
 import taskNotificationHub from "../../utils/signalr/task_notification_hub";
 import {SignalREvents} from "../../utils/signalr/event_names";
+import {SignalRHubs} from "../../utils/signalr/hub_names";
 
 
 const Gray = (props) => (
@@ -163,6 +164,8 @@ export default function TaskDetail({taskId, afterMade}){
                 if(code === 0){
                     setTask(data);
                 }
+                await taskNotificationHub.invoke(SignalRHubs.JOINEDTASK, taskId);
+
             }catch(e){
                 console.error("Error fetching task details:", e);
             }
@@ -171,35 +174,20 @@ export default function TaskDetail({taskId, afterMade}){
         fetchTask();
 
         return () => {
-            taskNotificationHub.invoke(
-                SignalREvents.LeaveTask,
-                taskId
-            );
+            taskNotificationHub.invoke(SignalRHubs.LeftTask, taskId);
         };
     }, [taskId]);
 
     useEffect(() => {
-        
-        const handler = data => {
-            console.log("handler==============", data);
-        };
-
-        await taskNotificationHub.invoke(
-            SignalREvents.JOIN_ALL
-            
-        );
-
-
         taskNotificationHub.on(
-            SignalREvents.OFFER_ACCEPTED,
-            handler
+            SignalREvents.TaskOfferAccepted,
+            (event) => {
+                console.log("接收后端传递过来的数据：", event);
+            }
         );
 
         return () => {
-            taskNotificationHub.off(
-                SignalREvents.OFFER_ACCEPTED,
-                handler
-            );
+            taskNotificationHub.off(SignalREvents.TaskOfferAccepted);
         };
     }, []);
 

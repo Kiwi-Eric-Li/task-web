@@ -71,8 +71,8 @@ export default function OwnerOfferList({taskId, offers, hasMatched, onMutate, st
 
     }
 
-    const acceptOffer = () => {
-
+    const acceptOffer = (data) => {
+        console.log("<<<<<acceptOffer<<<<<<<data<<<<<", data);
     }
 
     const closeDialog = () => {
