@@ -20,11 +20,10 @@ import {
 } from "@mui/material";
 import { AccessTime, LocalOffer, WarningAmber, Star, CheckCircle } from "@mui/icons-material";
 
-
 import UserRatingInline from "./UserRatingInline";
 import TaskAttachments from "./TaskAttachments";
 import {formatDateNZ} from "../../utils/time";
-
+import request from "../../utils/request";
 
 function ActionButton({label, variant = "text", disabled, loading, tooltip, ...rest}) {
   const btn = (
@@ -65,14 +64,13 @@ export default function OwnerOfferList({taskId, offers, hasMatched, onMutate, st
     const isPostConfirm = status === "InProgress" || status === "Completed";
 
     
-
-
     const cancelMatch = () => {
 
     }
 
     const acceptOffer = (data) => {
-        console.log("<<<<<acceptOffer<<<<<<<data<<<<<", data);
+        const res = request.post(`/tasks/${taskId}/offers/accept/${data.user_id}/${data.offer_id}`)
+        console.log("acceptOffer===========", res);
     }
 
     const closeDialog = () => {
@@ -319,7 +317,7 @@ export default function OwnerOfferList({taskId, offers, hasMatched, onMutate, st
                             onClick={async () => {
                                 try {
                                     setActionError(null);
-                                    await acceptOffer({ offer_id: dialog.offer.id });
+                                    await acceptOffer({ offer_id: dialog.offer.id, user_id: dialog.offer.user.id });
                                     setDialog(null);
                                     onMutate();
                                 } catch (err) {

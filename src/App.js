@@ -34,7 +34,10 @@ const PrivateRoute = ({ children }) => {
 export default function ResponsiveAppBar() {
   
   useEffect(() => {
-    taskNotificationHub.start();
+    const init = async ()=>{
+      await taskNotificationHub.start();
+    }
+    init();
   }, []);
 
   return (

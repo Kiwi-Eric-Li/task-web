@@ -48,6 +48,7 @@ import { openLoginDialog } from "../../store/modules/loginDialogSlice";
 import taskNotificationHub from "../../utils/signalr/task_notification_hub";
 import {SignalREvents} from "../../utils/signalr/event_names";
 import {SignalRHubs} from "../../utils/signalr/hub_names";
+import ManageTaskPanel from "./ManageTaskPanel";
 
 
 const Gray = (props) => (
@@ -144,6 +145,7 @@ export default function TaskDetail({taskId, afterMade}){
     const {userData} = useSelector(state => state.userData || {});
     const navigate = useNavigate();
     const [task, setTask] = useState({});
+    const [isCancellingTask, setIsCancellingTask] = useState(false);
     const [showAllCats, setShowAllCats] = useState(false);
     const [offerOpen, setOfferOpen] = useState(false);
     const [openAlert, setOpenAlert] = useState(false);
@@ -154,42 +156,38 @@ export default function TaskDetail({taskId, afterMade}){
     const isOwner = userData.id === task?.poster_id;
     const hasMatched = task?.offers?.some(o => o.is_matched);
     const canOffer = !isOwner && !hasMatched && task?.status === "Open";
+    const canCancelTask = isOwner && task?.status === 'Open';
 
     useEffect(() => {
         
-        const fetchTask = async () => {
+        const handler = (data) => {
+            console.log("handler=====data===接收后端传递过来的数据：===", data);
+        }
+
+
+        const init = async () => {
+
+            taskNotificationHub.on("task.offer.accepted", handler);
+            await taskNotificationHub.invoke(SignalRHubs.JOINEDTASK, taskId);
+
             try{
                 const response = await request(`/tasks/${taskId}`);
                 const {code, data} = response;
                 if(code === 0){
                     setTask(data);
                 }
-                await taskNotificationHub.invoke(SignalRHubs.JOINEDTASK, taskId);
-
             }catch(e){
                 console.error("Error fetching task details:", e);
             }
-        };
+        }
 
-        fetchTask();
+        init();
 
         return () => {
-            taskNotificationHub.invoke(SignalRHubs.LeftTask, taskId);
+            taskNotificationHub.off("task.offer.accepted", handler);
+            // taskNotificationHub.invoke(SignalRHubs.LeftTask, taskId);
         };
     }, [taskId]);
-
-    useEffect(() => {
-        taskNotificationHub.on(
-            SignalREvents.TaskOfferAccepted,
-            (event) => {
-                console.log("接收后端传递过来的数据：", event);
-            }
-        );
-
-        return () => {
-            taskNotificationHub.off(SignalREvents.TaskOfferAccepted);
-        };
-    }, []);
 
     const handleMakeOffer = () => {
         // validate whether user logins or not
@@ -227,6 +225,9 @@ export default function TaskDetail({taskId, afterMade}){
         </Snackbar>
     );
 
+    const handleCancelTask = () => {
+
+    }
 
     return (
         <>
@@ -348,7 +349,16 @@ export default function TaskDetail({taskId, afterMade}){
                 </Paper>
 
                 {/* —— 管理任务 —— */}
-
+                {
+                    canCancelTask && (
+                        <Section>
+                            <ManageTaskPanel 
+                                disabled={isCancellingTask}
+                                onCancel={handleCancelTask}
+                            />
+                        </Section>
+                    )
+                }
 
                 {/* —— 执行阶段 —— */}
 
