@@ -120,6 +120,26 @@ export default function TaskList(){
         );
     };
 
+    const afterMadeStatus = (taskid, status) => {
+        mutate(
+            currentData => {
+                if (!currentData) return currentData;
+                return currentData.map(page => ({
+                    ...page,
+                    data: page.data.map(task =>
+                        task.id === taskid
+                            ? {
+                                ...task,
+                                status,
+                            }
+                            : task
+                    ),
+                }));
+            },
+            false
+        );
+    }
+
     const {
         data,
         size,
@@ -389,7 +409,7 @@ export default function TaskList(){
                                 
                                 {/* right side: task-detail / map */}
                                 {selectedId ? (
-                                    <TaskDetail taskId={selectedId} afterMade={afterMade}/>
+                                    <TaskDetail taskId={selectedId} afterMade={afterMade} afterMadeStatus={afterMadeStatus}/>
                                 ) : (
                                     <Box ref={detailRef} sx={rightPaneSx}>
                                         <TaskMap />

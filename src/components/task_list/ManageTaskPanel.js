@@ -24,7 +24,7 @@ export default function ManageTaskPanel({disabled, onCancel}){
 
     const handleConfirm = async () => {
         setOpenConfirm(false)
-        // await onCancel()
+        await onCancel();
     }
 
     return (

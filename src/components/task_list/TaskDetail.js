@@ -138,7 +138,7 @@ const DescriptionSection = styled(Paper)(({ theme }) => ({
   borderLeft: `4px solid ${theme.palette.primary.main}`,
 }));
 
-export default function TaskDetail({taskId, afterMade}){
+export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
     const dispatch = useDispatch();
     const theme = useTheme();
 
@@ -169,16 +169,7 @@ export default function TaskDetail({taskId, afterMade}){
 
             taskNotificationHub.on("task.offer.accepted", handler);
             await taskNotificationHub.invoke(SignalRHubs.JOINEDTASK, taskId);
-
-            try{
-                const response = await request(`/tasks/${taskId}`);
-                const {code, data} = response;
-                if(code === 0){
-                    setTask(data);
-                }
-            }catch(e){
-                console.error("Error fetching task details:", e);
-            }
+            await getTaskById(taskId);
         }
 
         init();
@@ -188,6 +179,19 @@ export default function TaskDetail({taskId, afterMade}){
             // taskNotificationHub.invoke(SignalRHubs.LeftTask, taskId);
         };
     }, [taskId]);
+
+    const getTaskById = async (taskId) => {
+        try{
+            const response = await request(`/tasks/${taskId}`);
+            const {code, data} = response;
+            if(code === 0){
+                setTask(data);
+            }
+        }catch(e){
+            console.error("Error fetching task details:", e);
+        }
+    }
+
 
     const handleMakeOffer = () => {
         // validate whether user logins or not
@@ -225,8 +229,18 @@ export default function TaskDetail({taskId, afterMade}){
         </Snackbar>
     );
 
-    const handleCancelTask = () => {
-
+    const handleCancelTask = async () => {
+        try{
+            const res = await request.put(`/tasks/cancel?taskid=${taskId}`);
+            if(res.code === 0 && res.data > 0){
+                await getTaskById(taskId);
+                afterMadeStatus(taskId, "Cancelled");
+            }else{
+                console.log("cancel failed");
+            }
+        }catch(e){
+            console.log(e);
+        }
     }
 
     return (
