@@ -97,7 +97,6 @@ export default function TaskList(){
     
     const handleFilterChange = (title) => {
         setSearchTitle(title);
-        console.log("searchTitle======", title);
     }
 
     const afterMade = (taskid, count) => {
