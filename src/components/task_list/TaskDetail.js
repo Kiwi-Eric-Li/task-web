@@ -45,6 +45,7 @@ import OfferList from "./OfferList";
 import OfferFormDialog from "./OfferFormDialog";
 import {tokenService} from "../../utils/token";
 import { openLoginDialog } from "../../store/modules/loginDialogSlice";
+import {setTaskDetailData} from "../../store/modules/taskDetailSlice";
 import taskNotificationHub from "../../utils/signalr/task_notification_hub";
 import {SignalREvents} from "../../utils/signalr/event_names";
 import {SignalRHubs} from "../../utils/signalr/hub_names";
@@ -157,6 +158,8 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
     const hasMatched = task?.offers?.some(o => o.is_matched);
     const canOffer = !isOwner && !hasMatched && task?.status === "Open";
     const canCancelTask = isOwner && task?.status === 'Open';
+    const myOffer = task?.offers?.find(o => o.user_id === userData.id);
+    const needConfirm = !!myOffer && myOffer.is_matched && task?.status === "Matching";
 
     useEffect(() => {
         
@@ -186,6 +189,7 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
             const {code, data} = response;
             if(code === 0){
                 setTask(data);
+                dispatch(setTaskDetailData(data));
             }
         }catch(e){
             console.error("Error fetching task details:", e);
@@ -211,6 +215,7 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
             const res = await request.get(`/tasks/${taskId}/offers/refetch`);
             if(res.code === 0){
                 res.data && setTask({...task, offers: res.data});
+                dispatch(setTaskDetailData({...task, offers: res.data}));
                 afterMade(taskId, res.data.length);
             }
         }catch(e){

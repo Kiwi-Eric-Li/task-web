@@ -71,6 +71,9 @@ export default function OwnerOfferList({taskId, offers, hasMatched, onMutate, st
     const acceptOffer = (data) => {
         const res = request.post(`/tasks/${taskId}/offers/accept/${data.user_id}/${data.offer_id}`)
         console.log("acceptOffer===========", res);
+        if(res.code === 0 && res.data > 0){
+            
+        }
     }
 
     const closeDialog = () => {
