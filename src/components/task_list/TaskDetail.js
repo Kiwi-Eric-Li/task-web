@@ -50,6 +50,7 @@ import taskNotificationHub from "../../utils/signalr/task_notification_hub";
 import {SignalREvents} from "../../utils/signalr/event_names";
 import {SignalRHubs} from "../../utils/signalr/hub_names";
 import ManageTaskPanel from "./ManageTaskPanel";
+import MatchDecisionDialog from './MatchDecisionDialog';
 
 
 const Gray = (props) => (
@@ -147,11 +148,14 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
     const navigate = useNavigate();
     const [task, setTask] = useState({});
     const [isCancellingTask, setIsCancellingTask] = useState(false);
+    const [confirming, setConfirming] = useState(false);
+    const [declining, setDeclining] = useState(false);
     const [showAllCats, setShowAllCats] = useState(false);
     const [offerOpen, setOfferOpen] = useState(false);
     const [openAlert, setOpenAlert] = useState(false);
     const [alertType, setAlertType] = useState("success");
     const [alertMsg, setAlertMsg] = useState("");
+    const [dlgMode, setDlgMode] = useState(null);
     const CAT_LIMIT = 2;
     
     const isOwner = userData.id === task?.poster_id;
@@ -228,6 +232,15 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
             console.error(e);
         }
     }
+
+    const confirmMatch = () => {
+        console.log("confirm-match");
+    }
+
+    const declineMatch = () => {
+        console.log("decline-match");
+    }
+
 
     const snackbar = (
         <Snackbar
@@ -390,6 +403,46 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
 
                 {/* —— 完成 & 评价 —— */}
 
+
+                {needConfirm && (
+                    <Alert
+                        severity="info"
+                        icon={false}
+                        sx={{
+                        mb: 3,
+                        borderLeftWidth: 6,
+                        borderLeftColor: theme.palette.info.main,
+                        '& .MuiAlert-message': { flex: 1 },
+                        }}
+                        action={
+                        <Stack direction="row" spacing={1}>
+                            <Button
+                                variant="contained"
+                                size="small"
+                                color="success"
+                                disabled={confirming}
+                                onClick={() => setDlgMode("confirm")}
+                                sx={{textTransform: 'none', fontWeight: 'bold', color: '#fff'}}
+                            >
+                                Confirm
+                            </Button>
+                            <Button
+                                variant="outlined"
+                                size="small"
+                                disabled={declining}
+                                onClick={() => setDlgMode("decline")}
+                                sx={{textTransform: 'none', fontWeight: 'bold'}}
+                            >
+                                Decline
+                            </Button>
+                        </Stack>
+                        }
+                    >
+                        <Typography variant="body2">
+                            <strong>{task?.poster?.username}</strong> has selected your offer — please confirm to start the task.
+                        </Typography>
+                    </Alert>
+                )}
 
                 <Paper
                     variant="outlined"
@@ -561,29 +614,29 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
 
             {canOffer && (
                 <Box
-                sx={{
-                    position: { xs: "fixed", md: "sticky" },
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    p: 2,
-                    bgcolor: "#fff",
-                    borderTop: `1px solid ${theme.palette.divider}`,
-                    zIndex: 10,
-                }}
-                >
-                <Button
-                    onClick={handleMakeOffer}
-                    variant="contained"
-                    size="large"
-                    fullWidth
                     sx={{
-                        textTransform: "none",
-                        backgroundColor: "#3fa46a",
-                        ":hover": { backgroundColor: "#36975d" },
-                    }}>
-                    Make an Offer
-                </Button>
+                        position: { xs: "fixed", md: "sticky" },
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        p: 2,
+                        bgcolor: "#fff",
+                        borderTop: `1px solid ${theme.palette.divider}`,
+                        zIndex: 10,
+                    }}
+                >
+                    <Button
+                        onClick={handleMakeOffer}
+                        variant="contained"
+                        size="large"
+                        fullWidth
+                        sx={{
+                            textTransform: "none",
+                            backgroundColor: "#3fa46a",
+                            ":hover": { backgroundColor: "#36975d" },
+                        }}>
+                        Make an Offer
+                    </Button>
                 </Box>
             )}
 
@@ -595,9 +648,27 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
                 onClose={() => setOfferOpen(false)}
                 onSuccess={() => triggerRefetch()}
             />
-            </Box>
-            {openAlert && createPortal(snackbar, document.body)}
-        </>
-        
+
+            <MatchDecisionDialog
+                open={dlgMode !== null}
+                mode={dlgMode}
+                taskerName={task?.poster?.username}
+                price={myOffer?.price}
+                loading={dlgMode === "confirm" ? confirming : declining}
+                onClose={() => setDlgMode(null)}
+                onSubmit={async () => {
+                    if (dlgMode === "confirm") {
+                        await confirmMatch();
+                    } else {
+                        await declineMatch();
+                    }
+                    setDlgMode(null);
+                    await getTaskById(taskId);
+                }}
+            />
+
+        </Box>
+        {openAlert && createPortal(snackbar, document.body)}
+    </>
     );
 }
