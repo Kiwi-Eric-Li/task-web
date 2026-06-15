@@ -163,13 +163,12 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
 
     useEffect(() => {
         
-        const handler = (data) => {
+        const handler = async (data) => {
             console.log("handler=====data===接收后端传递过来的数据：===", data);
+            await getTaskById(data.task_id);
         }
 
-
         const init = async () => {
-
             taskNotificationHub.on("task.offer.accepted", handler);
             await taskNotificationHub.invoke(SignalRHubs.JOINEDTASK, taskId);
             await getTaskById(taskId);
