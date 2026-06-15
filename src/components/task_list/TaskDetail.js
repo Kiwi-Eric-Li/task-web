@@ -163,13 +163,19 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
 
     useEffect(() => {
         
-        const handler = async (data) => {
-            console.log("handler=====data===接收后端传递过来的数据：===", data);
+        const acceptHandler = async (data) => {
+            console.log("acceptHandler=====data===接收后端传递过来的数据：===", data);
             await getTaskById(data.task_id);
         }
 
+        const cancelHandler = async (taskid) => {
+            console.log("cancelHandler=====data===接收后端传递过来的数据：===", taskid);
+            await getTaskById(taskid);
+        }
+
         const init = async () => {
-            taskNotificationHub.on("task.offer.accepted", handler);
+            taskNotificationHub.on(SignalREvents.TaskOfferAccepted, acceptHandler);
+            taskNotificationHub.on(SignalREvents.TaskOfferCancelled, cancelHandler);
             await taskNotificationHub.invoke(SignalRHubs.JOINEDTASK, taskId);
             await getTaskById(taskId);
         }
@@ -177,7 +183,8 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
         init();
 
         return () => {
-            taskNotificationHub.off("task.offer.accepted", handler);
+            taskNotificationHub.off(SignalREvents.TaskOfferAccepted, acceptHandler);
+            taskNotificationHub.off(SignalREvents.TaskOfferCancelled, cancelHandler);
             // taskNotificationHub.invoke(SignalRHubs.LeftTask, taskId);
         };
     }, [taskId]);

@@ -64,16 +64,21 @@ export default function OwnerOfferList({taskId, offers, hasMatched, onMutate, st
     const isPostConfirm = status === "InProgress" || status === "Completed";
 
     
-    const cancelMatch = () => {
+    // cancel selection
+    const cancelSelection = async (offer_id) => {
+        const res = await request.post(`/tasks/${taskId}/offers/cancel/${offer_id}`);
+        
+        // if(!(res.code === 0 && res.data > 0)){
 
+        // }
     }
 
     const acceptOffer = (data) => {
         const res = request.post(`/tasks/${taskId}/offers/accept/${data.user_id}/${data.offer_id}`)
-        console.log("acceptOffer===========", res);
-        if(res.code === 0 && res.data > 0){
-            
-        }
+        // if(!(res.code === 0 && res.data > 0)){
+
+        // }
+        
     }
 
     const closeDialog = () => {
@@ -340,7 +345,7 @@ export default function OwnerOfferList({taskId, offers, hasMatched, onMutate, st
 
                 {dialog && dialog?.type === "cancel" && (
                 <>
-                    <DialogTitle fontWeight={600}>Cancel current match</DialogTitle>
+                    <DialogTitle fontWeight={600}>Cancel current selection</DialogTitle>
                     <DialogContent dividers>
                     <Typography variant="body2">
                         Cancel the preferred offer from <strong>{dialog?.offer?.user?.username}</strong>?{" "}
@@ -351,7 +356,7 @@ export default function OwnerOfferList({taskId, offers, hasMatched, onMutate, st
                     {actionError && <Alert severity="error" sx={{ mt: 1 }}>{actionError}</Alert>}
                     </DialogContent>
                     <DialogActions sx={{ p: 2 }}>
-                    <Button variant="contained" color="warning" onClick={closeDialog} disabled={canceling}>
+                    <Button variant="contained" color="warning" onClick={closeDialog} disabled={canceling} sx={{textTransform: 'none'}}>
                         Keep
                     </Button>
                     <Button
@@ -359,7 +364,7 @@ export default function OwnerOfferList({taskId, offers, hasMatched, onMutate, st
                         onClick={async () => {
                             try {
                                 setActionError(null);
-                                await cancelMatch();
+                                await cancelSelection(dialog?.offer?.id);
                                 setDialog(null);
                                 onMutate();
                             } catch (err) {
@@ -369,8 +374,9 @@ export default function OwnerOfferList({taskId, offers, hasMatched, onMutate, st
                         startIcon={
                             canceling ? <CircularProgress size={16} sx={{ color: "inherit" }} /> : undefined
                         }
+                        sx={{textTransform: 'none'}}
                     >
-                        Cancel match
+                        Cancel selection
                     </Button>
                     </DialogActions>
                 </>
