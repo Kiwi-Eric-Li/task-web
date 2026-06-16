@@ -51,6 +51,8 @@ import {SignalREvents} from "../../utils/signalr/event_names";
 import {SignalRHubs} from "../../utils/signalr/hub_names";
 import ManageTaskPanel from "./ManageTaskPanel";
 import MatchDecisionDialog from './MatchDecisionDialog';
+import MessageButton from "./MessageButton";
+import ExecutionPanel from "./ExecutionPanel";
 
 
 const Gray = (props) => (
@@ -165,6 +167,13 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
     const myOffer = task?.offers?.find(o => o.user_id === userData.id);
     const needConfirm = !!myOffer && myOffer.is_matched && task?.status === "Matching";
 
+    const matchedOffer = task?.offers?.find(o => o.is_matched);
+    const matchedTaskerId = matchedOffer?.user_id ?? null;
+    const isMatchedTasker = userData.id != null && userData.id === matchedTaskerId;
+    const isParticipant = isOwner || isMatchedTasker;
+
+    const canSeeExecution = task.status === "InProgress" && isParticipant;
+
     useEffect(() => {
         
         const acceptHandler = async (data) => {
@@ -177,6 +186,11 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
             await getTaskById(taskid);
         }
 
+        const confirmedMatchHandler = async (taskid) => {
+            console.log("confirmedHandler=====data===接收后端传递过来的数据：===", taskid);
+            await getTaskById(taskid);
+        }
+
         const cancelMatchHandler = async (taskid) => {
             console.log("cancelMatchHandler=====data===接收后端传递过来的数据：===", taskid);
             await getTaskById(taskid);
@@ -185,6 +199,7 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
         const init = async () => {
             taskNotificationHub.on(SignalREvents.TaskOfferAccepted, acceptHandler);
             taskNotificationHub.on(SignalREvents.TaskOfferCancelled, cancelHandler);
+            taskNotificationHub.on(SignalREvents.TaskMatchConfirmed, confirmedMatchHandler);
             taskNotificationHub.on(SignalREvents.TaskMatchCancelled, cancelMatchHandler);
             await taskNotificationHub.invoke(SignalRHubs.JOINEDTASK, taskId);
             await getTaskById(taskId);
@@ -195,6 +210,7 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
         return () => {
             taskNotificationHub.off(SignalREvents.TaskOfferAccepted, acceptHandler);
             taskNotificationHub.off(SignalREvents.TaskOfferCancelled, cancelHandler);
+            taskNotificationHub.off(SignalREvents.TaskMatchConfirmed, confirmedMatchHandler);
             taskNotificationHub.off(SignalREvents.TaskMatchCancelled, cancelMatchHandler);
             // taskNotificationHub.invoke(SignalRHubs.LeftTask, taskId);
         };
@@ -240,8 +256,12 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
         }
     }
 
-    const confirmMatch = () => {
-        console.log("confirm-match");
+    const confirmMatch = async () => {
+        try{
+            const res = await request.put(`/tasks/${taskId}/offers/confirm`);
+        }catch(e){
+            console.error(e);
+        }
     }
 
     const declineMatch = async () => {
@@ -410,7 +430,35 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
                 }
 
                 {/* —— 执行阶段 —— */}
-
+                {task.status === "InProgress" && (
+                    <Section>
+                        <Box sx={{ p: { xs: 0, sm: 2 }, mb: 2 }}>
+                        {isParticipant && (
+                            <Box sx={{ mb: 3 }}>
+                            <MessagePanel
+                                taskId={task.id}
+                                partnerName={isOwner ? (matchedOffer?.user?.username ?? "your tasker")
+                                : task?.poster?.username}
+                            />
+                            </Box>
+                        )}
+                        {canSeeExecution ? (
+                            <Stack spacing={1.5}>
+                            <ExecutionPanel
+                                taskId={task.id}
+                                role={isOwner ? "poster" : "tasker"}
+                                posterName={task?.poster?.username}
+                                onMutate={afterMutate}
+                            />
+                            </Stack>
+                        ) : (
+                            <Typography variant="body2" color="text.secondary">
+                            This task is currently in progress between the poster and the matched tasker.
+                            </Typography>
+                        )}
+                        </Box>
+                    </Section>
+                )}
 
                 {/* —— 完成 & 评价 —— */}
 
@@ -682,4 +730,41 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
         {openAlert && createPortal(snackbar, document.body)}
     </>
     );
+}
+
+function MessagePanel({ taskId, partnerName}) {
+  const theme = useTheme();
+  return (
+    <Paper
+      variant="outlined"
+      sx={{
+        p: 2,
+        borderRadius: 2,
+        bgcolor: alpha(theme.palette.primary.main, 0.05),
+        // borderColor: alpha(theme.palette.primary.main, 0.35),
+      }}
+    >
+      <Stack spacing={1.25}>
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Comment fontSize="small" sx={{ color: theme.palette.primary.main }} />
+          <Typography variant="subtitle1" fontWeight={700}>
+            Message {partnerName}
+          </Typography>
+        </Stack>
+
+        <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.5 }}>
+          Use chat to coordinate handover and progress:
+          start time, meeting location, quick photos, and any small scope clarifications.
+        </Typography>
+
+        <Box>
+          <MessageButton taskId={taskId} />
+        </Box>
+
+        <Typography variant="caption" color="text.secondary">
+          Tip: Keep all coordination in chat so details are tracked with the task.
+        </Typography>
+      </Stack>
+    </Paper>
+  );
 }

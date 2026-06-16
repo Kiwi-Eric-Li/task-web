@@ -116,6 +116,7 @@ export default function OwnerOfferList({taskId, offers, hasMatched, onMutate, st
                                     }
                                     color={isPostConfirm ? "success" : "primary"}
                                     label={isPostConfirm ? "Matched" : "Selected"}
+                                    sx={{color: "#fff", fontWeight: 'bold'}}
                                 />
                             ) : null;
 

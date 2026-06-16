@@ -150,7 +150,7 @@ export default function OwnerOfferPanel({taskId, status, offers, onMutate}){
                             size="small"
                             color={phase === "matching" ? "primary" : "success"}
                             label={phase === "matching" ? "Preferred selected" : "Matched"}
-                            sx={{ ml: 0.5 }}
+                            sx={{ ml: 0.5, color: "#fff", fontWeight: 'bold' }}
                         />
                     )}
                 </Stack>
