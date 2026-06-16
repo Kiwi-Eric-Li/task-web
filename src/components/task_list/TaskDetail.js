@@ -177,9 +177,15 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
             await getTaskById(taskid);
         }
 
+        const cancelMatchHandler = async (taskid) => {
+            console.log("cancelMatchHandler=====data===接收后端传递过来的数据：===", taskid);
+            await getTaskById(taskid);
+        }
+
         const init = async () => {
             taskNotificationHub.on(SignalREvents.TaskOfferAccepted, acceptHandler);
             taskNotificationHub.on(SignalREvents.TaskOfferCancelled, cancelHandler);
+            taskNotificationHub.on(SignalREvents.TaskMatchCancelled, cancelMatchHandler);
             await taskNotificationHub.invoke(SignalRHubs.JOINEDTASK, taskId);
             await getTaskById(taskId);
         }
@@ -189,6 +195,7 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
         return () => {
             taskNotificationHub.off(SignalREvents.TaskOfferAccepted, acceptHandler);
             taskNotificationHub.off(SignalREvents.TaskOfferCancelled, cancelHandler);
+            taskNotificationHub.off(SignalREvents.TaskMatchCancelled, cancelMatchHandler);
             // taskNotificationHub.invoke(SignalRHubs.LeftTask, taskId);
         };
     }, [taskId]);
@@ -237,8 +244,12 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
         console.log("confirm-match");
     }
 
-    const declineMatch = () => {
-        console.log("decline-match");
+    const declineMatch = async () => {
+        try{
+            const res = await request.put(`/tasks/${taskId}/offers/decline`);
+        }catch(e){
+            console.error(e);
+        }
     }
 
 
