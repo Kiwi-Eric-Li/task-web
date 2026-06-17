@@ -8,4 +8,5 @@ export const SignalREvents = {
     LeftTask: "left.task",
     JoinedFeed: "joined.feed",
     LeftFeed: "left.feed",
+    Notify: "notify",
 }

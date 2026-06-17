@@ -31,6 +31,7 @@ import {setCategories} from '../../store/modules/categoriesReducer'
 import { openLoginDialog, closeLoginDialog } from "../../store/modules/loginDialogSlice";
 import UserMenu from './UserMenu'
 import request from '../../utils/request';
+import InboxBell from './InboxBell';
 
 export default function DashboardIndex(){
     const dispatch = useDispatch();
@@ -115,9 +116,10 @@ export default function DashboardIndex(){
                             </Tooltip>
                         </Box>
                         <Box sx={{display: 'flex', alignItems: 'center', marginLeft: '20px', marginRight: '20px'}}>
-                            <Tooltip title="Notifications">
+                            <InboxBell />
+                            {/* <Tooltip title="Notifications">
                                 <NotificationsNoneIcon sx={{cursor: 'pointer', color: (t) => t.palette.primary.iconColor}} />
-                            </Tooltip>
+                            </Tooltip> */}
                         </Box>
 
                         {

@@ -212,7 +212,6 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
             taskNotificationHub.off(SignalREvents.TaskOfferCancelled, cancelHandler);
             taskNotificationHub.off(SignalREvents.TaskMatchConfirmed, confirmedMatchHandler);
             taskNotificationHub.off(SignalREvents.TaskMatchCancelled, cancelMatchHandler);
-            // taskNotificationHub.invoke(SignalRHubs.LeftTask, taskId);
         };
     }, [taskId]);
 

@@ -169,7 +169,7 @@ export default function Notifications(){
                         onClick={handleMarkAllRead}
                         startIcon={<DoneAllOutlinedIcon />}
                         // disabled={!isAuthenticated || unreadTotal === 0}
-                        sx={{ textTransform: 'none', color: 'text.primary' }}
+                        sx={{ textTransform: 'none', color: 'text.primary', fontWeight: 'bold' }}
                     >
                         Mark all as read
                     </Button>
@@ -202,12 +202,7 @@ export default function Notifications(){
                                 onDelete={() => handleDelete(n.id)}
                             />
                         ))
-                    
                 }
-                
-
-
-
             </Paper>
         </Box>
     )
