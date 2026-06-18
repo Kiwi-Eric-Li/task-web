@@ -40,6 +40,7 @@ export default class HubService{
                 
                 await this.connection.start();
                 console.log(`[SignalR] Connected: ${this.url}`);
+                console.log("[SignalR] ConnectionId=", this.getConnectionId());
 
             }catch(e){
                 console.error(`[SignalR] Start Failed: ${this.url}`, e);

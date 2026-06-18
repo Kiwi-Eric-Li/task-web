@@ -25,7 +25,7 @@ import request from "../../utils/request"
 import {SignalREvents} from "../../utils/signalr/event_names";
 import taskNotificationHub from "../../utils/signalr/task_notification_hub";
 import {taskTheme} from "../../utils/task_theme";
-import { formatInboxTime } from '../utils/time'
+import { formatInboxTime } from '../../utils/time'
 
 
 export default function InboxBell(){
@@ -233,7 +233,7 @@ export default function InboxBell(){
                         gap: 1,
                     })}
                 >
-                <NotificationsNoneIcon sx={{ fontSize: 48, opacity: 0.2, mb: 1 }} />
+                <NotificationsNoneIcon sx={{ fontSize: 48, opacity: 0.2, mb: 1, color: (t) => t.palette.primary.iconColor }} />
                 <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
                     Sign in to view notifications
                 </Typography>
@@ -300,7 +300,7 @@ export default function InboxBell(){
                                 },
                             }}
                         >
-                            <NotificationsNoneIcon />
+                            <NotificationsNoneIcon sx={{color: (t) => t.palette.primary.iconColor}}/>
                         </Badge>
                     </IconButton>
                 </span>
@@ -333,20 +333,20 @@ export default function InboxBell(){
                 }}
             >
                 <Box
-                sx={(t) => ({
-                    px: 3,
-                    pt: 2.5,
-                    pb: 2,
-                    borderBottom: `1px solid ${t.palette.divider}`,
-                    bgcolor: t.palette.background.paper,
-                })}
+                    sx={(t) => ({
+                        px: 3,
+                        pt: 2.5,
+                        pb: 2,
+                        borderBottom: `1px solid ${t.palette.divider}`,
+                        bgcolor: t.palette.background.paper,
+                    })}
                 >
                     <Typography
                         variant="h6"
                         sx={{
-                        fontSize: '1.125rem',
-                        fontWeight: 700,
-                        letterSpacing: '-0.01em',
+                            fontSize: '1.125rem',
+                            fontWeight: 700,
+                            letterSpacing: '-0.01em',
                         }}
                     >
                         Notifications

@@ -6,6 +6,7 @@ export const taskTheme = createTheme({
         primary: {
             main: "#ce4257",
             contrastText: "#FFFFFF",
+            iconColor: "rgb(38, 38, 38)"
         },
         secondary: {
             main: "#F5F5F5",

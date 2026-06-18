@@ -117,9 +117,6 @@ export default function DashboardIndex(){
                         </Box>
                         <Box sx={{display: 'flex', alignItems: 'center', marginLeft: '20px', marginRight: '20px'}}>
                             <InboxBell />
-                            {/* <Tooltip title="Notifications">
-                                <NotificationsNoneIcon sx={{cursor: 'pointer', color: (t) => t.palette.primary.iconColor}} />
-                            </Tooltip> */}
                         </Box>
 
                         {

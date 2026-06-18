@@ -21,6 +21,8 @@ export function formatSinceNow(input) {
     return `${y} year${y === 1 ? '' : 's'} ago`
 }
 
+export const pad2 = (n) => String(n).padStart(2, "0");
+
 export const formatHHmm = (iso, timeZone) =>
     iso
         ? new Intl.DateTimeFormat("en-NZ", {
@@ -49,4 +51,70 @@ export const formatDateNZ = (iso, opts) => {
 
     const timeStr = formatHHmm(iso, timeZone);
     return timeStr ? `${dateStr} ${timeStr}` : dateStr;
+};
+
+const toTzDateKey = (d, timeZone = NZ_TZ) => {
+    const parts = new Intl.DateTimeFormat("en-NZ", {
+        timeZone,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+    }).formatToParts(d);
+
+    const y = parts?.find(p => p.type === "year")?.value;
+    const m = parts?.find(p => p.type === "month")?.value;
+    const day = parts?.find(p => p.type === "day")?.value;
+    return `${y}-${m}-${day}`;
+};
+
+const yesterdayKey = (now, timeZone = NZ_TZ) => {
+    // Get "today" (Y, M, D) as seen in the target TZ
+    const parts = new Intl.DateTimeFormat("en-NZ", {
+        timeZone,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+    }).formatToParts(now);
+
+    let y = Number(parts.find(p => p.type === "year")?.value);
+    let m = Number(parts.find(p => p.type === "month")?.value);
+    let d = Number(parts.find(p => p.type === "day")?.value);
+
+    // Roll one day back in calendar terms
+    if (d > 1) {
+        d -= 1;
+    } else {
+        // Move to previous month
+        if (m === 1) {
+            m = 12;
+            y -= 1;
+        } else {
+            m -= 1;
+        }
+        // Days in month for (y, m)
+        d = new Date(Date.UTC(y, m, 0)).getUTCDate(); // m is 1-12, day 0 = last day of prev month
+    }
+    return `${y}-${pad2(m)}-${pad2(d)}`;
+};
+
+export const isSameDay = (a, b, timeZone= NZ_TZ) => {
+    if (!a || !b) return false;
+    return toTzDateKey(a, timeZone) === toTzDateKey(b, timeZone);
+};
+
+export const isYesterday = (d, now = new Date(), timeZone = NZ_TZ) =>
+    toTzDateKey(d, timeZone) === yesterdayKey(now, timeZone);
+
+export const formatInboxTime = (iso, now, timeZone=NZ_TZ) => {
+    if (!iso) return "";
+    const d = new Date(iso);
+    const diffSec = Math.floor((now.getTime() - d.getTime()) / 1000);
+    if (diffSec < 60 && diffSec >= -5) return "Just now";
+    if (isSameDay(d, now, timeZone)) return formatHHmm(iso, timeZone);
+    if (isYesterday(d, now, timeZone)) return "Yesterday";
+    return new Intl.DateTimeFormat("en-NZ", {
+        timeZone,
+        day: "2-digit",
+        month: "2-digit",
+    }).format(d);
 };
