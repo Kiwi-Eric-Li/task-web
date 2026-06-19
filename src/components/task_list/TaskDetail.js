@@ -54,6 +54,7 @@ import MatchDecisionDialog from './MatchDecisionDialog';
 import MessageButton from "./MessageButton";
 import ExecutionPanel from "./ExecutionPanel";
 import CommentTree from "./CommentTree";
+import CommentFormDialog from "./CommentFormDialog";
 
 
 const Gray = (props) => (
@@ -155,6 +156,7 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
     const [declining, setDeclining] = useState(false);
     const [showAllCats, setShowAllCats] = useState(false);
     const [offerOpen, setOfferOpen] = useState(false);
+    const [commentOpen, setCommentOpen] = useState(false);
     const [openAlert, setOpenAlert] = useState(false);
     const [alertType, setAlertType] = useState("success");
     const [alertMsg, setAlertMsg] = useState("");
@@ -299,7 +301,12 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
     }
 
     const handleMakeComment = () => {
-
+        // validate whether user logins or not
+        if (tokenService.getAccessToken()) {
+            setCommentOpen(true);
+        } else {
+            dispatch(openLoginDialog());
+        }
     }
 
     return (
@@ -563,6 +570,9 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
                     </Box>
                 </Paper>
                 
+                
+
+
                 <DescriptionSection elevation={1}>
                     <Stack direction="row" alignItems="center" spacing={1} mb={1}>
                         <Description color="primary" fontSize="small" />
@@ -785,6 +795,13 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
                     setDlgMode(null);
                     await getTaskById(taskId);
                 }}
+            />
+
+            <CommentFormDialog
+                taskId={task?.id}
+                open={commentOpen}
+                onClose={() => setCommentOpen(false)}
+                onSuccess={() => {}}
             />
 
         </Box>
