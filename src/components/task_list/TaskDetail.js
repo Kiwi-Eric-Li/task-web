@@ -53,6 +53,7 @@ import ManageTaskPanel from "./ManageTaskPanel";
 import MatchDecisionDialog from './MatchDecisionDialog';
 import MessageButton from "./MessageButton";
 import ExecutionPanel from "./ExecutionPanel";
+import CommentTree from "./CommentTree";
 
 
 const Gray = (props) => (
@@ -297,6 +298,10 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
         }
     }
 
+    const handleMakeComment = () => {
+
+    }
+
     return (
         <>
             <Box
@@ -460,6 +465,8 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
                 )}
 
                 {/* —— 完成 & 评价 —— */}
+                {/* not implement */}
+
 
 
                 {needConfirm && (
@@ -664,10 +671,65 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
 
 
                 {/* Comments */}
+                <Section>
+                    <Paper
+                        variant="outlined"
+                        sx={{
+                            p: 2,
+                            mb: 3,
+                            borderRadius: 2,
+                            boxShadow: 1,
+                            backgroundColor: alpha(theme.palette.background.paper, 0.8),
+                        }}
+                    >
+                        <Stack
+                            direction="row"
+                            alignItems="center"
+                            justifyContent="space-between"
+                            sx={{ mb: 1 }}
+                        >
+                            <Stack direction="row" alignItems="center" spacing={1}>
+                                <Comment fontSize="small" sx={{ color: theme.palette.text.secondary }} />
+                                <Typography variant="h6" fontWeight={700}>
+                                    {task.comment_count} Comment{task.comment_count === 1 ? "" : "s"}
+                                </Typography>
+                            </Stack>
+                            <Button
+                                startIcon={<Comment />}
+                                variant="outlined"
+                                color="primary"
+                                size="small"
+                                onClick={handleMakeComment}
+                                sx={{
+                                    textTransform: "none",
+                                    borderWidth: 2,
+                                    "&:hover": { borderWidth: 2 },
+                                }}
+                            >
+                                {/*Ask Your Questions*/}
+                                ASK
+                            </Button>
+                        </Stack>
+                        <Divider sx={{ mb: 2 }} />
+                        <CommentTree
+                            comments={task?.comments}
+                            taskId={task?.id}
+                            posterId={task?.poster_id}
+                            onMutate={afterMutate}
+                            emptyText={
+                                <Typography variant="body2" color="text.secondary">
+                                Ask{" "}
+                                <Typography component="span" sx={{ fontStyle: "italic" }}>
+                                    {task?.poster?.username}
+                                </Typography>{" "}
+                                a question
+                                </Typography>
+                            }
+                        />
+                    </Paper>
+                </Section>
 
-
-                
-
+                <Divider sx={{ my: 6 }} />
             </Box>
 
             {canOffer && (
