@@ -41,6 +41,7 @@ export default function CommentFormDialog({taskId, open, onClose, onSuccess}){
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
+    const [commentContent, setCommentContent] = useState('');
     const [files, setFiles] = useState([]);
     const [fileError, setFileError] = useState(null);
     const [submitting, setSubmitting] = useState(false);
@@ -48,23 +49,48 @@ export default function CommentFormDialog({taskId, open, onClose, onSuccess}){
     const [errors, setErrors] = useState({})
 
 
-    const handleFiles = () => {
+    const handleFiles = (e) => {
+        const picked = Array.from(e.target.files || []);
+        if (!picked.length) return;
 
+        const { accepted, rejected } = validateMediaFiles(
+            picked,
+            files.length,
+            COMMENT_UPLOAD_LIMITS
+        );
+
+        if (rejected.length) {
+            const msg = summarizeRejections(rejected);
+            setFileError(msg);
+        } else {
+            setFileError(null);
+        }
+
+        if (accepted.length) {
+            setFiles((prev) => [...prev, ...accepted].slice(0, COMMENT_UPLOAD_LIMITS.maxTotal));
+        }
+
+        e.currentTarget.value = "";
     }
 
-    const removeFile = () => {
-
+    const removeFile = (idx) => {
+        setFiles((prev) => prev.filter((_, i) => i !== idx));
     }
 
     const handleSubmit = () => {
 
     }
 
+    const clearData = ()=>{
+        setCommentContent('');
+        setFiles([]);
+        setFileError(null);
+    }
     return (
         <>
             <Dialog
                 open={open}
-                onClose={onClose}
+                onClose={() => {clearData(); onClose();}}
                 fullScreen={fullScreen}
                 maxWidth="sm"
                 fullWidth
@@ -74,7 +100,7 @@ export default function CommentFormDialog({taskId, open, onClose, onSuccess}){
                     New Comment
                     <IconButton
                         aria-label="close"
-                        onClick={onClose}
+                        onClick={() => {clearData(); onClose();}}
                         sx={{ position: "absolute", right: 8, top: 8 }}
                     >
                         <CloseIcon />
@@ -89,6 +115,8 @@ export default function CommentFormDialog({taskId, open, onClose, onSuccess}){
                     <TextField
                         label="Your Comment"
                         placeholder="Share your thoughts or ask a question"
+                        value={commentContent}
+                        onChange={(e) => setCommentContent(e.target.value)}
                         multiline
                         rows={4}
                         fullWidth
@@ -169,7 +197,7 @@ export default function CommentFormDialog({taskId, open, onClose, onSuccess}){
                 </DialogContent>
 
                 <DialogActions sx={{ px: 3, py: 2 }}>
-                    <Button onClick={onClose} disabled={submitting} sx={{textTransform: "none"}}>
+                    <Button onClick={() => {clearData(); onClose();}} disabled={submitting} sx={{textTransform: "none"}}>
                         Cancel
                     </Button>
                     <Button
