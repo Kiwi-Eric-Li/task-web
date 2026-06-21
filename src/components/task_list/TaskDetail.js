@@ -801,7 +801,9 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
                 taskId={task?.id}
                 open={commentOpen}
                 onClose={() => setCommentOpen(false)}
-                onSuccess={() => {}}
+                onSuccess={() => {}} 
+                setAlertType={(flag) => setAlertType(flag)}
+                setAlertMsg={(msg) => setAlertMsg(msg)}
             />
 
         </Box>

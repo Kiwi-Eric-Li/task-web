@@ -30,7 +30,7 @@ export default function CommentTree({comments, taskId, posterId, level = 0, onMu
 
     if (!comments?.length) {
         return level === 0 ? (
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="section" color="text.secondary">
                 {emptyText}
             </Typography>
         ) : null;

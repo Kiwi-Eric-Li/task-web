@@ -29,6 +29,8 @@ import {
   IMAGE_MIME,
   DEFAULT_MAX_IMAGE_MB,
 } from "../../utils/media";
+import request from "../../utils/request";
+
 
 const COMMENT_UPLOAD_LIMITS = {
   maxTotal: 3,
@@ -37,7 +39,7 @@ const COMMENT_UPLOAD_LIMITS = {
 };
 
 
-export default function CommentFormDialog({taskId, open, onClose, onSuccess}){
+export default function CommentFormDialog({taskId, open, onClose, onSuccess, setAlertType, setAlertMsg}){
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -77,8 +79,60 @@ export default function CommentFormDialog({taskId, open, onClose, onSuccess}){
         setFiles((prev) => prev.filter((_, i) => i !== idx));
     }
 
-    const handleSubmit = () => {
+    const upload = async (files) => {
+        const formData = new FormData();
+        files.forEach((f) => formData.append("Files", f));
+        try{
+            const res = await request.post("/task-media/upload", formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+            });
+            if(res.code === 0){
+                return res.data;
+            }else{
+                return "Upload failed";
+            }
+        }catch(e){
+            console.log("Error uploading files:", e);
+        }
+    }
 
+
+    const handleSubmit = async () => {
+        console.log("======comment========", commentContent);
+        console.log("======files==========", files);
+        setSubmitting(true);
+        let uploadUrls = [];
+
+        if(files.length > 0){
+            let res = await upload(files);
+            if(typeof res === "string"){
+                setFileError(res);
+                setSubmitting(false);
+                return;
+            }else{
+                uploadUrls = [...res];
+            }
+        }
+
+        try{
+            const res = await request.post(`/tasks/${taskId}/comments`, {
+                "comment": commentContent,
+                "attachments": uploadUrls
+            });
+            if(res.code === 0){
+                setAlertType('success');
+                setAlertMsg(res.message);
+                onSuccess();
+                onClose();
+            }else{
+                setAlertType('error');
+                setAlertMsg(res.message);
+            }
+        }catch(e){
+            console.error(e);
+        }finally{
+            setSubmitting(false);
+        }
     }
 
     const clearData = ()=>{
