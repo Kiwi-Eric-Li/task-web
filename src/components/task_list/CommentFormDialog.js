@@ -98,8 +98,6 @@ export default function CommentFormDialog({taskId, commenterId, open, onClose, o
 
 
     const handleSubmit = async () => {
-        console.log("======comment========", commentContent);
-        console.log("======files==========", files);
         setSubmitting(true);
         let uploadUrls = [];
 
@@ -118,10 +116,10 @@ export default function CommentFormDialog({taskId, commenterId, open, onClose, o
             const res = await request.post(`/task-comments`, {
                 "task_id": taskId,
                 "commenter_user_id": commenterId,
-                "comment": commentContent,
+                "content": commentContent,
                 "attachments": uploadUrls
             });
-            
+
             if(res.code === 0){
                 setAlertType('success');
                 setAlertMsg(res.message);

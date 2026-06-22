@@ -802,7 +802,7 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
                 commenterId={userData?.id}
                 open={commentOpen}
                 onClose={() => setCommentOpen(false)}
-                onSuccess={() => {}} 
+                onSuccess={async() => { await getTaskById(taskId)}} 
                 setAlertType={(flag) => setAlertType(flag)}
                 setAlertMsg={(msg) => setAlertMsg(msg)}
             />
