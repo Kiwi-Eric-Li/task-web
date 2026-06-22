@@ -39,7 +39,7 @@ const COMMENT_UPLOAD_LIMITS = {
 };
 
 
-export default function CommentFormDialog({taskId, open, onClose, onSuccess, setAlertType, setAlertMsg}){
+export default function CommentFormDialog({taskId, commenterId, open, onClose, onSuccess, setAlertType, setAlertMsg}){
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -115,10 +115,13 @@ export default function CommentFormDialog({taskId, open, onClose, onSuccess, set
         }
 
         try{
-            const res = await request.post(`/tasks/${taskId}/comments`, {
+            const res = await request.post(`/task-comments`, {
+                "task_id": taskId,
+                "commenter_user_id": commenterId,
                 "comment": commentContent,
                 "attachments": uploadUrls
             });
+            
             if(res.code === 0){
                 setAlertType('success');
                 setAlertMsg(res.message);

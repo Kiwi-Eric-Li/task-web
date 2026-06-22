@@ -799,6 +799,7 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
 
             <CommentFormDialog
                 taskId={task?.id}
+                commenterId={userData?.id}
                 open={commentOpen}
                 onClose={() => setCommentOpen(false)}
                 onSuccess={() => {}} 
