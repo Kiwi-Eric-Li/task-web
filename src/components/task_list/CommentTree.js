@@ -29,7 +29,7 @@ const BORDER_KEYS = ["primary", "success", "info", "warning"];
 export default function CommentTree({comments, taskId, posterId, level = 0, onMutate, emptyText}){
 
     const [openMap, setOpenMap] = useState({});
-    const [commentsData, setCommentsData] = useState([]);
+    let commentsData = [];
 
     if (!comments?.length) {
         return level === 0 ? (
@@ -53,7 +53,7 @@ export default function CommentTree({comments, taskId, posterId, level = 0, onMu
 
         // second, build a parent-child relation
         comments.forEach(c => {
-            const current = c.get(c.id);
+            const current = map.get(c.id);
             if(c.comment_id === null){
                 roots.push(current);
             }else{
@@ -69,7 +69,7 @@ export default function CommentTree({comments, taskId, posterId, level = 0, onMu
         return roots;
     }
 
-    setCommentsData(buildCommentTree(comments));
+    commentsData = buildCommentTree(comments);
 
     return (
         <Stack spacing={1.5} sx={{ mt: level ? 1.2 : 0 }}>
@@ -81,9 +81,9 @@ export default function CommentTree({comments, taskId, posterId, level = 0, onMu
                             c={c}
                             level={Math.min(level, MAX_LEVEL)}
                             taskId={taskId}
-                            isPoster={posterId === c.commenter_id}
+                            isPoster={posterId === c.commenter_user_id}
                             opened={opened}
-                            parentName={parentName}
+                            parentName={c?.user?.username}
                             onMutate={onMutate}
                             onToggle={() =>
                                 setOpenMap((m) => ({ ...m, [c.id]: !opened }))
@@ -99,7 +99,7 @@ export default function CommentTree({comments, taskId, posterId, level = 0, onMu
                                     taskId={taskId}
                                     onMutate={onMutate}
                                     posterId={posterId}
-                                    parentName={c.commenter_display_name}
+                                    parentName={c?.user?.username}
                                 />
                             </Collapse>
                         ) : null}
