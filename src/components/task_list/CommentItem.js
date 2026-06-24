@@ -1,4 +1,4 @@
-
+import {useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import {
   Avatar,
@@ -21,7 +21,8 @@ import {
   ArrowRightAlt,
 } from "@mui/icons-material";
 
-
+import TaskAttachments from "./TaskAttachments";
+import ReplyInput from "./ReplyInput";
 import { formatDateNZ } from "../../utils/time";
 const MAX_LEVEL = 1;
 const INDENT_PX = 16;
@@ -46,6 +47,8 @@ export default function CommentItem({ c, level, taskId, isPoster, opened, parent
     const theme = useTheme();
     const borderKey = BORDER_KEYS[(level - 1) % BORDER_KEYS.length] ?? "primary";
     const posterColor = theme.palette.warning.main;
+
+    const [replying, setReplying] = useState(false);
 
     return (
         <Container elevation={0} level={level} borderKey={borderKey}>
@@ -119,6 +122,52 @@ export default function CommentItem({ c, level, taskId, isPoster, opened, parent
                     >
                         {c.content}
                     </Typography>
+                    {c.attachments?.length ? (
+                        <Box mt={1}>
+                            <TaskAttachments attachments={c.attachments} />
+                        </Box>
+                    ) : null}
+
+                    <Stack
+                        direction="row"
+                        spacing={1}
+                        alignItems="center"
+                        sx={{ mt: 0.8 }}
+                        color="text.secondary"
+                    >
+                        <AccessTime sx={{ fontSize: 15 }} />
+                        <Typography variant="caption" sx={{lineHeight: 1}}>
+                            {formatDateNZ(c.created_at, { withTime: true })}
+                        </Typography>
+                        {isPoster && (
+                            <Chip
+                            label="Poster"
+                            size="small"
+                            color="warning"
+                            sx={{ fontSize: 10, ml: 0.5 }}
+                            />
+                        )}
+                        <Box flex={1} />
+                        <IconButton
+                            size="small"
+                            onClick={() => setReplying((r) => !r)}
+                            color={replying ? "primary" : "default"}
+                            sx={{ transition: ".15s" }}
+                        >
+                            <ForumIcon fontSize="small" />
+                        </IconButton>
+                    </Stack>
+                    {replying && (
+                        <ReplyInput
+                            taskId={taskId}
+                            parentId={c.id}
+                            onCancel={() => setReplying(false)}
+                            onSuccess={() => {
+                                setReplying(false);
+                                onMutate(); // 让父组件刷新
+                            }}
+                        />
+                    )}
                 </Box>    
             </Stack>
         </Container>

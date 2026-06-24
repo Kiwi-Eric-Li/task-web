@@ -701,7 +701,7 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
                             <Stack direction="row" alignItems="center" spacing={1}>
                                 <Comment fontSize="small" sx={{ color: theme.palette.text.secondary }} />
                                 <Typography variant="h6" fontWeight={700}>
-                                    {task.comment_count} Comment{task.comment_count === 1 ? "" : "s"}
+                                    {task?.comments?.length} Comment{task?.comments?.length === 1 ? "" : "s"}
                                 </Typography>
                             </Stack>
                             <Button
