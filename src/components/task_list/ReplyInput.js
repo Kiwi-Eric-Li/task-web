@@ -1,5 +1,5 @@
 import {useState} from 'react';
-
+import {useSelector} from 'react-redux';
 import {
   Box,
   Button,
@@ -27,6 +27,7 @@ import {
   IMAGE_MIME,
   DEFAULT_MAX_IMAGE_MB,
 } from "../../utils/media";
+import request from "../../utils/request";
 
 
 const REPLY_UPLOAD_LIMITS = {
@@ -36,11 +37,29 @@ const REPLY_UPLOAD_LIMITS = {
 };
 
 
+const upload = async (files) => {
+        
+    const formData = new FormData();
+    files.forEach((f) => formData.append("Files", f));
+    try{
+        const res = await request.post("/task-media/upload", formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+        });
+        if(res.code === 0){
+            return res.data;
+        }else{
+            return "Upload failed";
+        }
+    }catch(e){
+        console.log("Error uploading files:", e);
+    }
+}
 
 export default function ReplyInput({ taskId, parentId, onSuccess, onCancel }){
 
     const theme = useTheme();
-
+    const {userData} = useSelector(state => state.userData || {});
+    const [content, setContent] = useState("");
     const [files, setFiles] = useState([]);
     const [fileError, setFileError] = useState(null);
     const [urls, setUrls] = useState([]);
@@ -48,12 +67,67 @@ export default function ReplyInput({ taskId, parentId, onSuccess, onCancel }){
     const [submitting, setSubmitting] = useState(false);
     const [preview, setPreview] = useState(null);
 
-    const pickFiles = (e) => {
+    const pickFiles = async (e) => {
+        const picked = Array.from(e.target.files || []);
+        if (!picked.length) return;
 
+        const { accepted, rejected } = validateMediaFiles(
+            picked,
+            files.length,
+            REPLY_UPLOAD_LIMITS
+        );
+
+        if (rejected.length) {
+            const msg = summarizeRejections(rejected);
+            setFileError(msg);
+        } else {
+            setFileError(null);
+        }
+
+        if (accepted.length) {
+            setFiles((prev) => [...prev, ...accepted].slice(0, REPLY_UPLOAD_LIMITS.maxTotal));
+        }
+
+        e.currentTarget.value = "";
     }
 
-    const removeFile = (idx) => {
+    const replyFn = async () => {
 
+        try{
+            // first, upload attachments
+            setSubmitting(true);
+            let uploadUrls = [];
+            if(files.length > 0){
+                let res = await upload(files);
+                if(typeof res === "string"){
+                    setFileError(res);
+                    setSubmitting(false);
+                    return;
+                }else{
+                    uploadUrls = [...res];
+                }
+            }
+
+            // second, post reply data
+            const res = await request.post("/task-comments/reply", {
+                "task_id": taskId,
+                "comment_id": parentId,
+                "commenter_user_id": userData?.id,
+                "content": content,
+                "attachments": uploadUrls
+            });
+            if(res.code === 0 && res.data > 0){
+                onSuccess();
+            }
+        }catch(e){
+            console.error(e);
+        }finally{
+            setSubmitting(false);
+        }
+    }
+
+    const handleContent = (e) => {
+        setContent(e.target.value);
     }
 
     return (
@@ -67,12 +141,12 @@ export default function ReplyInput({ taskId, parentId, onSuccess, onCancel }){
         >
             <Stack spacing={1}>
                 <TextField
-                    placeholder="Write a reply…"
+                    placeholder="Write a reply…" 
+                    onChange={handleContent}
+                    value={content}
                     multiline
                     rows={3}
                     fullWidth
-                    error={true}
-                    helperText="Reply content is required"
                     sx={{
                         "& .MuiInputBase-root": {
                             bgcolor: theme.palette.background.paper,
@@ -105,11 +179,12 @@ export default function ReplyInput({ taskId, parentId, onSuccess, onCancel }){
                     </Stack>
                     <Stack direction="row" spacing={1} sx={{ flexShrink: 0 }}>
                         <Button onClick={onCancel} size="small" sx={{textTransform: "none"}}>Cancel</Button>
-                        <Button
+                        <Button 
+                            onClick={replyFn} 
                             type="submit"
                             variant="contained"
                             size="small"
-                            disabled={false} 
+                            disabled={content === ""} 
                             sx={{textTransform: "none"}}
                             startIcon={
                                 (submitting || uploadingStates.some(Boolean)) && (
@@ -189,7 +264,7 @@ export default function ReplyInput({ taskId, parentId, onSuccess, onCancel }){
                                 className="del"
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    removeFile(idx);
+                                    setFiles((arr) => arr.filter((_, i) => i !== idx));
                                 }}
                                 sx={{
                                     position: "absolute",

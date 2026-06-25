@@ -12,7 +12,6 @@ import {
   Place,
   Public,
   Schedule,
-  Category,
 } from "@mui/icons-material";
 import {
   Alert,
@@ -20,8 +19,6 @@ import {
   Box,
   Chip,
   Divider,
-  IconButton,
-  Skeleton,
   Stack,
   Typography,
   Button,
@@ -29,8 +26,6 @@ import {
   styled,
   Paper,
   useTheme,
-  ImageList,
-  ImageListItem,
   Snackbar,
 } from "@mui/material";
 
@@ -242,7 +237,7 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
     };
 
     const afterMutate = () => {
-
+        getTaskById(taskId);
     }
 
     const triggerRefetch = async () => {
@@ -481,10 +476,10 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
                         severity="info"
                         icon={false}
                         sx={{
-                        mb: 3,
-                        borderLeftWidth: 6,
-                        borderLeftColor: theme.palette.info.main,
-                        '& .MuiAlert-message': { flex: 1 },
+                            mb: 3,
+                            borderLeftWidth: 6,
+                            borderLeftColor: theme.palette.info.main,
+                            '& .MuiAlert-message': { flex: 1 },
                         }}
                         action={
                         <Stack direction="row" spacing={1}>
@@ -570,9 +565,6 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
                     </Box>
                 </Paper>
                 
-                
-
-
                 <DescriptionSection elevation={1}>
                     <Stack direction="row" alignItems="center" spacing={1} mb={1}>
                         <Description color="primary" fontSize="small" />

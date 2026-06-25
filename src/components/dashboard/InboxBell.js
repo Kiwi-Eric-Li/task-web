@@ -67,7 +67,7 @@ export default function InboxBell(){
     // get unread notifications of currently logged-in user
     const getUnReadNotify = async () => {
         const res = await request.get("/task-notifications/unread-count");
-        console.log("res=======getUnReadNotify======", res);
+        
         if(res.code === 0){
             res.data > 0 && setUnread(res.data);
         }

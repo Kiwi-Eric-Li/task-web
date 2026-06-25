@@ -80,7 +80,6 @@ export default function OfferFormDialog({taskId, open, onClose, onSuccess, setAl
         }catch(e){
             console.log("Error uploading files:", e);
         }
-        
     }
 
     const handleFiles = (e) => {
@@ -191,7 +190,6 @@ export default function OfferFormDialog({taskId, open, onClose, onSuccess, setAl
                             name="message"
                             control={control}
                             render={({ field }) => {
-                                const wc = countWords(field.value ?? "");
                                 return (
                                     <TextField
                                         {...field}

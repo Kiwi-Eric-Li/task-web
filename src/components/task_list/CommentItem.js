@@ -4,7 +4,6 @@ import {
   Avatar,
   Box,
   Chip,
-  Collapse,
   IconButton,
   Paper,
   Stack,
@@ -24,7 +23,7 @@ import {
 import TaskAttachments from "./TaskAttachments";
 import ReplyInput from "./ReplyInput";
 import { formatDateNZ } from "../../utils/time";
-const MAX_LEVEL = 1;
+
 const INDENT_PX = 16;
 const BORDER_KEYS = ["primary", "success", "info", "warning"];
 
@@ -40,13 +39,11 @@ const Container = styled(Paper, {
   borderRadius: theme.shape.borderRadius,
 }));
 
-
-
 export default function CommentItem({ c, level, taskId, isPoster, opened, parentName, onToggle, onMutate }){
     const navigate = useNavigate();
     const theme = useTheme();
     const borderKey = BORDER_KEYS[(level - 1) % BORDER_KEYS.length] ?? "primary";
-    const posterColor = theme.palette.warning.main;
+    const posterColor = "#F1C21B";
 
     const [replying, setReplying] = useState(false);
 
@@ -141,10 +138,10 @@ export default function CommentItem({ c, level, taskId, isPoster, opened, parent
                         </Typography>
                         {isPoster && (
                             <Chip
-                            label="Poster"
-                            size="small"
-                            color="warning"
-                            sx={{ fontSize: 10, ml: 0.5 }}
+                                label="Poster"
+                                size="small"
+                                color="warning"
+                                sx={{ fontSize: 10, ml: 0.5, fontWeight: 'bold', 'bgcolor': '#F1C21B' }}
                             />
                         )}
                         <Box flex={1} />
@@ -164,11 +161,11 @@ export default function CommentItem({ c, level, taskId, isPoster, opened, parent
                             onCancel={() => setReplying(false)}
                             onSuccess={() => {
                                 setReplying(false);
-                                onMutate(); // 让父组件刷新
+                                onMutate();
                             }}
                         />
                     )}
-                </Box>    
+                </Box>
             </Stack>
         </Container>
     )
