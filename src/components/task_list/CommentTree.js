@@ -83,7 +83,7 @@ export default function CommentTree({comments, taskId, posterId, level = 0, onMu
                             taskId={taskId}
                             isPoster={posterId === c.commenter_user_id}
                             opened={opened}
-                            parentName={c?.user?.username}
+                            parentName={c.comment_id == null ? "" : c?.user?.username}
                             onMutate={onMutate}
                             onToggle={() =>
                                 setOpenMap((m) => ({ ...m, [c.id]: !opened }))

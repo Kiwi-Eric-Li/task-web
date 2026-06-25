@@ -27,7 +27,7 @@ import {
   IMAGE_MIME,
   DEFAULT_MAX_IMAGE_MB,
 } from "../../utils/media";
-import { useState } from "react";
+
 
 const REPLY_UPLOAD_LIMITS = {
   maxTotal: 3,
@@ -48,7 +48,13 @@ export default function ReplyInput({ taskId, parentId, onSuccess, onCancel }){
     const [submitting, setSubmitting] = useState(false);
     const [preview, setPreview] = useState(null);
 
+    const pickFiles = (e) => {
 
+    }
+
+    const removeFile = (idx) => {
+
+    }
 
     return (
         <Box
@@ -60,7 +66,146 @@ export default function ReplyInput({ taskId, parentId, onSuccess, onCancel }){
             }}
         >
             <Stack spacing={1}>
+                <TextField
+                    placeholder="Write a reply…"
+                    multiline
+                    rows={3}
+                    fullWidth
+                    error={true}
+                    helperText="Reply content is required"
+                    sx={{
+                        "& .MuiInputBase-root": {
+                            bgcolor: theme.palette.background.paper,
+                        },
+                    }}
+                />
 
+                <Stack
+                    direction={{ xs: "column", sm: "row" }}
+                    spacing={1}
+                    alignItems={{ xs: "stretch", sm: "center" }}
+                    justifyContent="space-between"
+                    useFlexGap
+                    sx={{ flexWrap: "wrap", rowGap: 1 }}
+                >
+                    <Stack direction="row" spacing={1} alignItems="center" sx={{ flexShrink: 0 }}>
+                        <Button
+                            component="label"
+                            size="small"
+                            startIcon={<ImageIcon />}
+                            disabled={files.length >= REPLY_UPLOAD_LIMITS.maxTotal}
+                            sx={{ whiteSpace: "nowrap", textTransform: "none" }}
+                        >
+                            Add image
+                            <input hidden type="file" accept="image/*" multiple onChange={pickFiles} />
+                        </Button>
+                        <Typography variant="caption" color="text.secondary">
+                            {files.length}/{REPLY_UPLOAD_LIMITS.maxTotal}
+                        </Typography>
+                    </Stack>
+                    <Stack direction="row" spacing={1} sx={{ flexShrink: 0 }}>
+                        <Button onClick={onCancel} size="small" sx={{textTransform: "none"}}>Cancel</Button>
+                        <Button
+                            type="submit"
+                            variant="contained"
+                            size="small"
+                            disabled={false} 
+                            sx={{textTransform: "none"}}
+                            startIcon={
+                                (submitting || uploadingStates.some(Boolean)) && (
+                                    <CircularProgress size={14} sx={{ color: "inherit" }} />
+                                )
+                            }
+                        >
+                            Reply
+                        </Button>
+                    </Stack>
+                </Stack>
+                <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ mt: 0.5, display: "block" }}
+                >
+                    Images ≤ {REPLY_UPLOAD_LIMITS.maxImageMB}MB. Max {REPLY_UPLOAD_LIMITS.maxTotal} files.
+                </Typography>
+                {fileError && (
+                    <Typography
+                        variant="caption"
+                        color="error"
+                        sx={{
+                            mt: 0.5,
+                            display: "block",
+                            whiteSpace: "pre-wrap",
+                            overflowWrap: "anywhere", // allows long filenames to wrap
+                        }}
+                    >
+                    {fileError}
+                    </Typography>
+                )}
+                
+                {files.length > 0 && (
+                    <Box display="flex" gap={1} flexWrap="wrap">
+                        {files.map((f, idx) => (
+                            <Box
+                                key={idx}
+                                sx={{
+                                    position: "relative",
+                                    width: 70,
+                                    height: 70,
+                                    borderRadius: 1,
+                                    overflow: "hidden",
+                                    boxShadow: 1,
+                                    cursor: "pointer",
+                                    "&:hover .del": { opacity: 1 },
+                                }}
+                                onClick={() => !uploadingStates[idx] && setPreview(URL.createObjectURL(f))}
+                            >
+                            
+                            <img
+                                src={URL.createObjectURL(f)}
+                                alt="thumb"
+                                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                            />
+
+                            {/* uploading mask */}
+                            {uploadingStates[idx] && (
+                                <Box
+                                    sx={{
+                                        position: "absolute",
+                                        inset: 0,
+                                        bgcolor: "rgba(255,255,255,.6)",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                    }}
+                                >
+                                    <CircularProgress size={22} />
+                                </Box>
+                            )}
+
+                            {/* delete btn */}
+                            <IconButton
+                                size="small"
+                                className="del"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    removeFile(idx);
+                                }}
+                                sx={{
+                                    position: "absolute",
+                                    top: -6,
+                                    right: -6,
+                                    bgcolor: "rgba(255,255,255,.85)",
+                                    opacity: 0,
+                                    transition: ".2s",
+                                }}
+                            >
+                                <DeleteIcon fontSize="small" />
+                            </IconButton>
+                            </Box>
+                        ))}
+                    </Box>
+                )}
             </Stack>
 
             <Dialog
