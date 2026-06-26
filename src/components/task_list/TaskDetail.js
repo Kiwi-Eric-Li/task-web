@@ -426,7 +426,7 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
                 {/* —— 执行阶段 —— */}
                 {task.status === "InProgress" && (
                     <Section>
-                        <Box sx={{ p: { xs: 0, sm: 2 }, mb: 2 }}>
+                        <Box sx={{ p: { xs: 0, sm: 0 }, mb: 2 }}>
                         {isParticipant && (
                             <Box sx={{ mb: 3 }}>
                             <MessagePanel
@@ -438,12 +438,12 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
                         )}
                         {canSeeExecution ? (
                             <Stack spacing={1.5}>
-                            <ExecutionPanel
-                                taskId={task.id}
-                                role={isOwner ? "poster" : "tasker"}
-                                posterName={task?.poster?.username}
-                                onMutate={afterMutate}
-                            />
+                                <ExecutionPanel
+                                    taskId={task.id}
+                                    role={isOwner ? "poster" : "tasker"}
+                                    posterName={task?.poster?.username}
+                                    onMutate={afterMutate}
+                                />
                             </Stack>
                         ) : (
                             <Typography variant="body2" color="text.secondary">
