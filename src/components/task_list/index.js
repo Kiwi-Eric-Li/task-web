@@ -99,7 +99,7 @@ export default function TaskList(){
         setSearchTitle(title);
     }
 
-    const afterMade = (taskid, count) => {
+    const afterMade = (taskid, commentsCount, offersCount) => {
         mutate(
             currentData => {
                 if (!currentData) return currentData;
@@ -109,7 +109,8 @@ export default function TaskList(){
                         task.id === taskid
                             ? {
                                 ...task,
-                                offer_count: count,
+                                offer_count: offersCount,
+                                comment_count: commentsCount
                             }
                             : task
                     ),
@@ -256,7 +257,6 @@ export default function TaskList(){
                                                 const firstCategory = t.categories[0];
                                                 const extraCount = t.categories.length - 1;
                                                 const hasMoreCats = extraCount > 0;
-                                                t.comment_count = 0;
 
                                                 return (
                                                     <Box key={`${t.id}-${index}`} onClick={() => showTaskDetail(t.id)}>

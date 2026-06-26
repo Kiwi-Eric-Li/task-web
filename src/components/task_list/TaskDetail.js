@@ -220,6 +220,7 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
             if(code === 0){
                 setTask(data);
                 dispatch(setTaskDetailData(data));
+                afterMade(taskId, data.comments.length, data.offers.length);
             }
         }catch(e){
             console.error("Error fetching task details:", e);
@@ -238,19 +239,6 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
 
     const afterMutate = () => {
         getTaskById(taskId);
-    }
-
-    const triggerRefetch = async () => {
-        try{
-            const res = await request.get(`/tasks/${taskId}/offers/refetch`);
-            if(res.code === 0){
-                res.data && setTask({...task, offers: res.data});
-                dispatch(setTaskDetailData({...task, offers: res.data}));
-                afterMade(taskId, res.data.length);
-            }
-        }catch(e){
-            console.error(e);
-        }
     }
 
     const confirmMatch = async () => {
@@ -768,7 +756,7 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
                 setAlertType={(flag) => setAlertType(flag)}
                 setAlertMsg={(msg) => setAlertMsg(msg)}
                 onClose={() => setOfferOpen(false)}
-                onSuccess={() => triggerRefetch()}
+                onSuccess={() => afterMutate()}
             />
 
             <MatchDecisionDialog
