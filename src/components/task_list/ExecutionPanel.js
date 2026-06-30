@@ -18,21 +18,19 @@ import {
 import { CheckCircle, Key, InfoOutlined, ContentCopy } from "@mui/icons-material";
 
 import { useCountdown, formatLocalDateTime } from "../../utils/countdown";
+import request from "../../utils/request";
 
 
 export default function ExecutionPanel({taskId, role, posterName, onMutate}){
 
-
-    console.log("role==========", role);
-
     return role === "poster" ? (
-        <PosterExecutionBox  onMutate={onMutate} />
+        <PosterExecutionBox  onMutate={onMutate} taskId={taskId}/>
     ) : (
         <TaskerExecutionBox posterName={posterName} onMutate={onMutate} />
     );
 }
 
-function PosterExecutionBox({onMutate}){
+function PosterExecutionBox({onMutate, taskId}){
 
     const [code, setCode] = useState(null);
     const [expiresAt, setExpiresAt] = useState(null); // show as-is
@@ -45,8 +43,13 @@ function PosterExecutionBox({onMutate}){
 
     const displayExpires = expiresAt ? formatLocalDateTime(expiresAt, "en-NZ", { timeZone: "Pacific/Auckland" }) : null;
 
-    const handleShowCode = () => {
-
+    const handleShowCode = async () => {
+        try{
+            const res = await request.get(`/tasks/completion-code?taskid=${taskId}`);
+            console.log("res======handleShowCode========", res);
+        }catch(e){
+            console.log(e);
+        }
     }
 
     const handleCopyCode = () => {
@@ -215,4 +218,114 @@ function PosterExecutionBox({onMutate}){
 
 function TaskerExecutionBox({posterName, onMutate}){
 
+    const [note, setNote] = useState("");
+    const [firstUrl, setFirstUrl] = useState("");
+    const [fileUrl, setFileUrl] = useState("");
+    const [code, setCode] = useState("");
+    const [openVerify, setOpenVerify] = useState(false);
+    const [codeErr, setCodeErr] = useState("");
+    const [verifying, setVerifying] = useState(false);
+    const [checkingIn, setCheckingIn] = useState(false);
+    const [starting, setStarting] = useState(false);
+    const [uploading, setUploading] = useState(false);
+
+    const safeMsg = (err, fallback) => err?.response?.data?.message || err?.response?.data || err?.message || fallback;
+
+
+    const handleVerify = () => {
+
+    }
+
+    return (
+        <Box>
+            <Typography variant="h6" fontWeight={700}>
+                Finish & Verify
+            </Typography>
+            <Stack spacing={1} sx={{ mt: 0.5 }}>
+                <Typography variant="subtitle1" color="text.secondary">
+                    When your work is complete, ask <b>{posterName}</b> for their 6-digit completion code.
+                    Verifying the code will mark the task as finished, trigger settlement, and open reviews.
+                </Typography>
+                <Box
+                    sx={(theme) => ({
+                        mt: 1,
+                        p: 1.25,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                        borderRadius: 1,
+                        border: `1px solid ${theme.palette.info.light}`,
+                        background: theme.palette.mode === "dark"
+                        ? theme.palette.action.hover
+                        : theme.palette.info.light + "22",
+                    })}
+                >
+                    <InfoOutlined fontSize="small" color="info" />
+                    <Typography variant="caption" color="text.secondary">
+                        Can’t find it? Ask {posterName} to generate the code on their task page.
+                    </Typography>
+                </Box>
+            </Stack>
+
+            <Divider sx={{ my: 2 }} />
+
+            <Stack direction="row" spacing={1} flexWrap="wrap">
+                <Button
+                    variant="contained"
+                    onClick={() => setOpenVerify(true)}
+                    sx={{ textTransform: "none" }}
+                >
+                    I have the code — Verify
+                </Button>
+            </Stack>
+            
+            <Dialog open={openVerify} onClose={() => setOpenVerify(false)} maxWidth="xs" fullWidth>
+                <DialogTitle fontWeight={700}>Enter completion code</DialogTitle>
+                <DialogContent dividers>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                        Enter the 6-digit code from <b>{posterName}</b>. Submitting the correct code will complete
+                        the task and move both of you to the review stage.
+                    </Typography>
+
+                    <TextField
+                        autoFocus
+                        fullWidth
+                        inputProps={{
+                            maxLength: 6,
+                            inputMode: "numeric",
+                            pattern: "\\d*",
+                            style: { letterSpacing: 4, textAlign: "center", fontVariantNumeric: "tabular-nums" },
+                        }}
+                        placeholder="••••••"
+                        value={code}
+                        onChange={(e) => {
+                            const v = e.target.value.replace(/\D/g, "");
+                            setCode(v);
+                            if (codeErr) setCodeErr("");
+                        }}
+                        error={!!codeErr}
+                        helperText={codeErr || "6 digits, numbers only."}
+                    />
+
+                    <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 1 }}>
+                        Tip: Verify only after you’ve delivered everything agreed. We’ll record this action for both parties.
+                    </Typography>
+                </DialogContent>
+
+                <DialogActions sx={{ p: 2 }}>
+                    <Button onClick={() => setOpenVerify(false)} disabled={verifying}>
+                        Cancel
+                    </Button>
+                    <Button
+                        variant="contained"
+                        onClick={handleVerify}
+                        disabled={verifying || code.length !== 6}
+                        sx={{ minWidth: 120, textTransform: "none" }}
+                    >
+                        {verifying ? "Verifying…" : "Complete Task"}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        </Box>
+    )
 }
