@@ -30,7 +30,7 @@ export default function ExecutionPanel({taskId, role, posterName, onMutate}){
     );
 }
 
-function PosterExecutionBox({onMutate, taskId}){
+function PosterExecutionBox({onMutate, taskId, setAlertType, setAlertMsg}){
 
     const [code, setCode] = useState(null);
     const [expiresAt, setExpiresAt] = useState(null); // show as-is
@@ -46,14 +46,40 @@ function PosterExecutionBox({onMutate, taskId}){
     const handleShowCode = async () => {
         try{
             const res = await request.get(`/tasks/completion-code?taskid=${taskId}`);
-            console.log("res======handleShowCode========", res);
+            if(res.code === 0){
+                setCode(res.data.code);
+                setExpiresAt(res.data.expires_at);
+            }
         }catch(e){
             console.log(e);
         }
     }
 
-    const handleCopyCode = () => {
-
+    const handleCopyCode = async () => {
+        if (!code){
+            return;
+        }
+        try{
+            await navigator.clipboard.writeText(code);
+            setAlertType("success");
+            setAlertMsg("Code copied to clipboard.");
+        }catch(e){
+            try{
+                const ta = document.createElement("textarea");
+                ta.value = code;
+                ta.style.position = "fixed";
+                ta.style.opacity = "0";
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand("copy");
+                document.body.removeChild(ta);
+                setAlertType("success");
+                setAlertMsg("Code copied to clipboard.");
+            }catch(e){
+                setAlertType("error");
+                setAlertMsg("Couldn’t copy the code. Please copy it manually.");
+            }
+        }
     }
 
     const handlePosterComplete = () => {
