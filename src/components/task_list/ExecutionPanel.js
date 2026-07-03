@@ -21,10 +21,10 @@ import { useCountdown, formatLocalDateTime } from "../../utils/countdown";
 import request from "../../utils/request";
 
 
-export default function ExecutionPanel({taskId, role, posterName, onMutate}){
+export default function ExecutionPanel({taskId, role, posterName, onMutate, setAlertType, setAlertMsg}){
 
     return role === "poster" ? (
-        <PosterExecutionBox  onMutate={onMutate} taskId={taskId}/>
+        <PosterExecutionBox  onMutate={onMutate} taskId={taskId} setAlertType={setAlertType} setAlertMsg={setAlertMsg}/>
     ) : (
         <TaskerExecutionBox posterName={posterName} onMutate={onMutate} />
     );
@@ -82,8 +82,21 @@ function PosterExecutionBox({onMutate, taskId, setAlertType, setAlertMsg}){
         }
     }
 
-    const handlePosterComplete = () => {
+    const handlePosterComplete = async () => {
 
+        try{
+            const res = await request.put(`/tasks/${taskId}/complete`);
+            if(res.code === 0){
+                onMutate();
+            }
+            setAlertType("success");
+            setAlertMsg(res.message);
+            setOpenDone(false);
+        }catch(e){
+            console.log(e);
+            setAlertType("error");
+            setAlertMsg("Failed to mark task as complete.");
+        }
     }
 
     return (
@@ -225,14 +238,15 @@ function PosterExecutionBox({onMutate, taskId, setAlertType, setAlertMsg}){
                 </Typography>
                 </DialogContent>
                 <DialogActions sx={{ p: 2 }}>
-                    <Button onClick={() => setOpenDone(false)} disabled={completing}>
+                    <Button onClick={() => setOpenDone(false)} disabled={completing} sx={{ textTransform: "none" }}>
                         Cancel
                     </Button>
                     <Button
                         variant="contained"
                         color="success"
                         onClick={handlePosterComplete}
-                        disabled={completing}
+                        disabled={completing} 
+                        sx={{ textTransform: "none" }}
                     >
                         {completing ? "Working…" : "Confirm"}
                     </Button>

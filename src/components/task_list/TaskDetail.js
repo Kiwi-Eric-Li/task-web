@@ -442,7 +442,9 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
                                     taskId={task.id}
                                     role={isOwner ? "poster" : "tasker"}
                                     posterName={task?.poster?.username}
-                                    onMutate={afterMutate}
+                                    onMutate={afterMutate} 
+                                    setAlertType={(flag) => setAlertType(flag)}
+                                    setAlertMsg={(msg) => setAlertMsg(msg)}
                                 />
                             </Stack>
                         ) : (
