@@ -50,7 +50,7 @@ import MessageButton from "./MessageButton";
 import ExecutionPanel from "./ExecutionPanel";
 import CommentTree from "./CommentTree";
 import CommentFormDialog from "./CommentFormDialog";
-
+import ReviewBlock from "./ReviewBlock";
 
 const Gray = (props) => (
   <Typography variant="body2" color="text.secondary" {...props} />
@@ -171,6 +171,17 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
     const isParticipant = isOwner || isMatchedTasker;
 
     const canSeeExecution = task.status === "InProgress" && isParticipant;
+
+    const rs = task?.review_status ?? {
+        poster_reviewed: false,
+        tasker_reviewed: false,
+        poster_rating: null,
+        tasker_rating: null
+    }
+
+    const canReview = task.status === "Completed" && (
+        (isOwner && !rs.poster_reviewed) || (isMatchedTasker && !rs.tasker_reviewed)
+    );
 
     useEffect(() => {
         
@@ -457,9 +468,27 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
                 )}
 
                 {/* —— 完成 & 评价 —— */}
-                {/* not implement */}
-
-
+                {
+                    task.status === 'Completed' && (
+                        <Section>
+                            <Paper variant="outlined" sx={{p: 2, mb: 3}}>
+                                {
+                                    canReview ? (
+                                        <ReviewBlock 
+                                            taskId={taskId} 
+                                            role={isOwner ? 'poster': 'tasker'} 
+                                            onMutate={afterMutate}    
+                                        />
+                                    ) : (
+                                        <Typography variant="body2" color="text.secondary">
+                                            This task has been completed{isParticipant && (isOwner ? rs.poster_reviewed : rs.tasker_reviewed) ? " and you've already left a review.": "."}
+                                        </Typography>
+                                    )
+                                }
+                            </Paper>
+                        </Section>
+                    )
+                }
 
                 {needConfirm && (
                     <Alert
