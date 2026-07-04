@@ -460,7 +460,7 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
                             </Stack>
                         ) : (
                             <Typography variant="body2" color="text.secondary">
-                            This task is currently in progress between the poster and the matched tasker.
+                                This task is currently in progress between the poster and the matched tasker.
                             </Typography>
                         )}
                         </Box>
@@ -477,7 +477,9 @@ export default function TaskDetail({taskId, afterMade, afterMadeStatus}){
                                         <ReviewBlock 
                                             taskId={taskId} 
                                             role={isOwner ? 'poster': 'tasker'} 
-                                            onMutate={afterMutate}    
+                                            posterId={task?.poster_id}
+                                            taskerId={matchedOffer?.user?.id}
+                                            onMutate={afterMutate}
                                         />
                                     ) : (
                                         <Typography variant="body2" color="text.secondary">
