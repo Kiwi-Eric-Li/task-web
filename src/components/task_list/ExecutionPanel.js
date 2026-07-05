@@ -26,7 +26,7 @@ export default function ExecutionPanel({taskId, role, posterName, onMutate, setA
     return role === "poster" ? (
         <PosterExecutionBox  onMutate={onMutate} taskId={taskId} setAlertType={setAlertType} setAlertMsg={setAlertMsg}/>
     ) : (
-        <TaskerExecutionBox posterName={posterName} onMutate={onMutate} />
+        <TaskerExecutionBox taskId={taskId} posterName={posterName} onMutate={onMutate} />
     );
 }
 
@@ -256,7 +256,7 @@ function PosterExecutionBox({onMutate, taskId, setAlertType, setAlertMsg}){
     )
 }
 
-function TaskerExecutionBox({posterName, onMutate}){
+function TaskerExecutionBox({taskId, posterName, onMutate}){
 
     const [note, setNote] = useState("");
     const [firstUrl, setFirstUrl] = useState("");
@@ -272,8 +272,23 @@ function TaskerExecutionBox({posterName, onMutate}){
     const safeMsg = (err, fallback) => err?.response?.data?.message || err?.response?.data || err?.message || fallback;
 
 
-    const handleVerify = () => {
+    const handleVerify = async () => {
+        if(code.length !== 6){
+            setCodeErr("Please enter the 6-digit code.");
+            return;
+        }
+        setCodeErr("");
+        setVerifying(true);
+        try{
+            const res = await request.post(`/tasks/${taskId}/verify`, { code });
+            console.log("res====verify=====", res);
 
+
+        }catch(e){
+            console.log("error====verify=====", e);
+        }finally{
+            setVerifying(false);
+        }
     }
 
     return (
@@ -353,7 +368,7 @@ function TaskerExecutionBox({posterName, onMutate}){
                 </DialogContent>
 
                 <DialogActions sx={{ p: 2 }}>
-                    <Button onClick={() => setOpenVerify(false)} disabled={verifying}>
+                    <Button sx={{textTransform: 'none'}} onClick={() => setOpenVerify(false)} disabled={verifying}>
                         Cancel
                     </Button>
                     <Button
