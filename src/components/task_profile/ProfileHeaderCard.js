@@ -43,9 +43,9 @@ export default function ProfileHeaderCard({role, profile, taskerStats, posterSta
     return (
         <Paper elevation={0} variant="outlined" sx={{p: 3, borderRadius: 3, position: {md: 'sticky'}, top: {md: 24}, overflow: 'hidden'}}>
             <Stack alignItems="center" spacing={2} textAlign="center">
-                <Avatar src={profile.avatar_url} sx={{width: 96, height: 96}}/>
+                <Avatar src={profile?.avatar_url} sx={{width: 96, height: 96}}/>
                 <Typography variant="h5" fontWeight={700}>
-                    {profile.display_name}
+                    {profile?.username}
                 </Typography>
                 <Divider sx={{my: 2, alignSelf: 'stretch'}} />
 

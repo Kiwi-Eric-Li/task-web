@@ -280,12 +280,14 @@ function TaskerExecutionBox({taskId, posterName, onMutate}){
         setCodeErr("");
         setVerifying(true);
         try{
-            const res = await request.post(`/tasks/${taskId}/verify`, { code });
+            const res = await request.post(`/tasks/${taskId}/verify-code`, { code });
             console.log("res====verify=====", res);
-
-
+            if(res.code === 0){
+                setOpenVerify(false);
+                onMutate();
+            }
         }catch(e){
-            console.log("error====verify=====", e);
+            console.log("error====verify=====", e.response.data.message);
         }finally{
             setVerifying(false);
         }

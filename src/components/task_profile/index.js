@@ -10,6 +10,7 @@ import {
 
 } from '@mui/material';
 
+import request from "../../utils/request";
 import ProfileHeaderCard from './ProfileHeaderCard';
 import RoleToggle from './RoleToggle';
 import AboutCard from './AboutCard';
@@ -49,17 +50,23 @@ export default function TaskProfile(){
         : tab?.poster_stats?.ratings_received_count ?? 0;
 
 
-    const [profile, setProfile] = useState({
-        "display_name": "lxf101",
-        "avatar_url": ""
-    });
+    const [profile, setProfile] = useState({});
+
     const [taskerStats, setTaskerStats] = useState({
         completed: 0
     })
     
     useEffect(() => {
         // 根据userid, 请求后端接口，获取profile数据
-
+        async function getUserInfo(){
+            const res = await request.get(`/auth/${userid}/info`);
+            if(res.code === 0){
+                setProfile(res.data);
+            }
+        }
+        
+        getUserInfo();
+        
     }, []);
 
 
@@ -81,7 +88,7 @@ export default function TaskProfile(){
                                 >
                                     <Box>
                                         <Typography variant="h5" fontWeight={700}>
-                                            About {profile?.display_name ?? (loadingProfile ? '' : '—')}
+                                            About {profile?.username ?? (loadingProfile ? '' : '—')}
                                         </Typography>
                                         <Typography variant="body2" color="text.secondary">
                                             {role === 'tasker' ? 'Tasker profile' : 'Poster profile'}
