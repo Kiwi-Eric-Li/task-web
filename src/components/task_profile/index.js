@@ -53,7 +53,8 @@ export default function TaskProfile(){
     const [profile, setProfile] = useState({});
 
     const [taskerStats, setTaskerStats] = useState({
-        completed: 0
+        completed: 0,
+        list: []
     });
 
     const [posterStats, setPosterStats] = useState({
@@ -68,12 +69,24 @@ export default function TaskProfile(){
                 setProfile(res.data);
             }
         }
+
+        async function getCompletedList(){
+            const res = await request.get(`/tasks/${userid}/completed-list`);
+            
+            if(res.code === 0){
+                setTaskerStats({
+                    completed: res.data.length,
+                    list: res.data
+                });
+            }
+        }
         
         async function getTaskInfo(){
 
         }
 
         getUserInfo();
+        getCompletedList();
         getTaskInfo();
         
     }, []);

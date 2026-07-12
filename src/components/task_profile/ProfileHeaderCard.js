@@ -1,5 +1,4 @@
 import {useState, useEffect} from 'react'
-import {useParams} from 'react-router-dom'
 import {
   Paper,
   Stack,
@@ -9,13 +8,12 @@ import {
   Box
 } from '@mui/material';
 
-import request from "../../utils/request";
 import KpiProgress from './KpiProgress';
 import RatingSummary from './RatingSummary';
 import ProfileTasksModal from './ProfileTasksModal';
 
 export default function ProfileHeaderCard({role, profile, taskerStats, posterStats}){
-    const {userid} = useParams();
+    
     const [openModal, setOpenModal] = useState(null);
 
     const handleOpenTaskerCompleted = () => {
@@ -41,23 +39,6 @@ export default function ProfileHeaderCard({role, profile, taskerStats, posterSta
     const handleCloseModal = () => {
         setOpenModal(null);
     }
-
-
-    useEffect(() => {
-
-        const getData = async () => {
-            const res = await request.get(`/tasks/${userid}/completed-list`);
-            console.log("getData======res=======", res);
-        }
-
-
-        getData();
-
-
-
-
-    }, []);
-
 
     return (
         <Paper elevation={0} variant="outlined" sx={{p: 3, borderRadius: 3, position: {md: 'sticky'}, top: {md: 24}, overflow: 'hidden'}}>
@@ -280,7 +261,8 @@ export default function ProfileHeaderCard({role, profile, taskerStats, posterSta
                 open={Boolean(openModal)}
                 view={openModal}
                 profileId={profile.id}
-                onClose={handleCloseModal}
+                onClose={handleCloseModal} 
+                taskData={taskerStats.list}
             />
         </Paper>
     )

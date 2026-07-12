@@ -1,4 +1,4 @@
-import {useState} from 'react'
+import {useState, useEffect} from 'react'
 import {useNavigate} from 'react-router-dom'
 import {
   Box,
@@ -14,34 +14,42 @@ import {
 import CircularProgress from '@mui/material/CircularProgress';
 
 
-export default function ProfileTasksModal({open, view, profileId, onClose}){
+export default function ProfileTasksModal({open, view, profileId, onClose, taskData}){
     const navigate = useNavigate();
 
     const [isLoading, setIsLoading] = useState(false);
     const [hasError, setHasError] = useState(false);
-    const [tasks, setTasks] = useState([
-        {
-            budget: null,
-            budget_type: "fixed",
-            categories: ["Auto Services"],
-            comment_count: 2,
-            created_at: "Mon, 02 Feb 2026 09:26:24 GMT",
-            estimated_hours: 0,
-            expires_at: "Sat, 07 Mar 2026 09:10:00 GMT",
-            id: 514,
-            location: "Auckland, ,0616",
-            offer_count: 0,
-            poster_avatar_url: null,
-            poster_display_name: "lxf101",
-            schedule_time: "Thu, 05 Feb 2026 09:10:00 GMT",
-            status: "Open",
-            title: "test posting a task",
-            type: "offline",
-            updated_at: "Mon, 02 Feb 2026 09:26:24 GMT"
-        }
-    ]);
+    const [tasks, setTasks] = useState([]);
 
-    console.log("view========", view);
+    useEffect(()=>{
+        setTasks(taskData);
+    }, [taskData]);
+
+
+
+    // const [tasks, setTasks] = useState([
+    //     {
+    //         budget: null,
+    //         budget_type: "fixed",
+    //         categories: ["Auto Services"],
+    //         comment_count: 2,
+    //         created_at: "Mon, 02 Feb 2026 09:26:24 GMT",
+    //         estimated_hours: 0,
+    //         expires_at: "Sat, 07 Mar 2026 09:10:00 GMT",
+    //         id: 514,
+    //         location: "Auckland, ,0616",
+    //         offer_count: 0,
+    //         poster_avatar_url: null,
+    //         poster_display_name: "lxf101",
+    //         schedule_time: "Thu, 05 Feb 2026 09:10:00 GMT",
+    //         status: "Open",
+    //         title: "test posting a task",
+    //         type: "offline",
+    //         updated_at: "Mon, 02 Feb 2026 09:26:24 GMT"
+    //     }
+    // ]);
+
+    console.log("view====11111====", view);
 
     if(view === "posterPosted"){
         // 请求后端接口，获取 posterPosted 数据
@@ -221,7 +229,7 @@ export default function ProfileTasksModal({open, view, profileId, onClose}){
                 {renderContent()}
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose}>Close</Button>
+                <Button onClick={onClose} sx={{textTransform: 'none'}}>Close</Button>
             </DialogActions>
         </Dialog>
     )
