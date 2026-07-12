@@ -54,7 +54,11 @@ export default function TaskProfile(){
 
     const [taskerStats, setTaskerStats] = useState({
         completed: 0
-    })
+    });
+
+    const [posterStats, setPosterStats] = useState({
+        
+    });
     
     useEffect(() => {
         // 根据userid, 请求后端接口，获取profile数据
@@ -65,7 +69,12 @@ export default function TaskProfile(){
             }
         }
         
+        async function getTaskInfo(){
+
+        }
+
         getUserInfo();
+        getTaskInfo();
         
     }, []);
 
@@ -76,7 +85,7 @@ export default function TaskProfile(){
                 <Container maxWidth="lg">
                     <Grid container spacing={3} sx={{px: '24px'}}>
                         <Grid size={{xs: 12, md: 4}}>
-                            <ProfileHeaderCard role={role} profile={profile} taskerStats={taskerStats}/>
+                            <ProfileHeaderCard role={role} profile={profile} taskerStats={taskerStats} posterStats={posterStats}/>
                         </Grid>
                         <Grid size={{xs: 12, md: 8}}>
                             <Stack spacing={2.5}>

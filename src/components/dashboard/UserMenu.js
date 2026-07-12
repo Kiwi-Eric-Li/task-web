@@ -42,7 +42,7 @@ export default function UserMenu({userData}) {
     <>
       <Tooltip title="Profile & settings">
         <IconButton onClick={handleOpen} size="small">
-          <Avatar sx={{ width: 34, height: 34, cursor: 'pointer' }} />
+          <Avatar sx={{ width: 34, height: 34, cursor: 'pointer' }} src={userData.avatar_url}/>
         </IconButton>
       </Tooltip>
       

@@ -1,4 +1,5 @@
-import {useState} from 'react'
+import {useState, useEffect} from 'react'
+import {useParams} from 'react-router-dom'
 import {
   Paper,
   Stack,
@@ -8,12 +9,13 @@ import {
   Box
 } from '@mui/material';
 
+import request from "../../utils/request";
 import KpiProgress from './KpiProgress';
 import RatingSummary from './RatingSummary';
 import ProfileTasksModal from './ProfileTasksModal';
 
 export default function ProfileHeaderCard({role, profile, taskerStats, posterStats}){
-
+    const {userid} = useParams();
     const [openModal, setOpenModal] = useState(null);
 
     const handleOpenTaskerCompleted = () => {
@@ -39,6 +41,23 @@ export default function ProfileHeaderCard({role, profile, taskerStats, posterSta
     const handleCloseModal = () => {
         setOpenModal(null);
     }
+
+
+    useEffect(() => {
+
+        const getData = async () => {
+            const res = await request.get(`/tasks/${userid}/completed-list`);
+            console.log("getData======res=======", res);
+        }
+
+
+        getData();
+
+
+
+
+    }, []);
+
 
     return (
         <Paper elevation={0} variant="outlined" sx={{p: 3, borderRadius: 3, position: {md: 'sticky'}, top: {md: 24}, overflow: 'hidden'}}>
@@ -67,26 +86,26 @@ export default function ProfileHeaderCard({role, profile, taskerStats, posterSta
                                     handleCardKeyDown(event, 'taskerCompleted')
                                 }
                                 sx={{
-                                p: 1.75,
-                                borderRadius: 2,
-                                minWidth: 140,
-                                height: '100%',
-                                display: 'grid',
-                                placeItems: 'center',
-                                textAlign: 'center',
-                                cursor: 'pointer',
-                                transition:
-                                    'box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease',
-                                '&:hover': {
-                                    boxShadow: 2,
-                                    transform: 'translateY(-2px)',
-                                    borderColor: 'primary.main',
-                                },
-                                '&:focus-visible': {
-                                    outline: '2px solid',
-                                    outlineColor: 'primary.main',
-                                    outlineOffset: 2,
-                                },
+                                    p: 1.75,
+                                    borderRadius: 2,
+                                    minWidth: 140,
+                                    height: '100%',
+                                    display: 'grid',
+                                    placeItems: 'center',
+                                    textAlign: 'center',
+                                    cursor: 'pointer',
+                                    transition:
+                                        'box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease',
+                                    '&:hover': {
+                                        boxShadow: 2,
+                                        transform: 'translateY(-2px)',
+                                        borderColor: 'primary.main',
+                                    },
+                                    '&:focus-visible': {
+                                        outline: '2px solid',
+                                        outlineColor: 'primary.main',
+                                        outlineOffset: 2,
+                                    },
                                 }}
                                 role="button"
                                 tabIndex={0}
@@ -150,23 +169,23 @@ export default function ProfileHeaderCard({role, profile, taskerStats, posterSta
                                     handleCardKeyDown(event, 'posterPosted')
                                 }
                                 sx={{
-                                p: 1.5,
-                                borderRadius: 2,
-                                minWidth: 140,
-                                height: '100%',
-                                cursor: 'pointer',
-                                transition:
-                                    'box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease',
-                                '&:hover': {
-                                    boxShadow: 2,
-                                    transform: 'translateY(-2px)',
-                                    borderColor: 'primary.main',
-                                },
-                                '&:focus-visible': {
-                                    outline: '2px solid',
-                                    outlineColor: 'primary.main',
-                                    outlineOffset: 2,
-                                },
+                                    p: 1.5,
+                                    borderRadius: 2,
+                                    minWidth: 140,
+                                    height: '100%',
+                                    cursor: 'pointer',
+                                    transition:
+                                        'box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease',
+                                    '&:hover': {
+                                        boxShadow: 2,
+                                        transform: 'translateY(-2px)',
+                                        borderColor: 'primary.main',
+                                    },
+                                    '&:focus-visible': {
+                                        outline: '2px solid',
+                                        outlineColor: 'primary.main',
+                                        outlineOffset: 2,
+                                    },
                                 }}
                                 role="button"
                                 tabIndex={0}
