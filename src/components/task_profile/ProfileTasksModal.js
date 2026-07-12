@@ -86,20 +86,13 @@ export default function ProfileTasksModal({open, view, profileId, onClose, taskD
 
     const handleOpenTask = (taskId) => {
         onClose();
-        navigate(`/task/task-list?id=${taskId}`);
+        navigate(`/task/task-list?taskid=${taskId}`);
     }
 
 
 
     const renderContent = () => {
-        // if(!profileId){
-        //     return (
-        //         <Typography variant='body2' color='text.secondary'>
-        //             Profile information is missing. Unable to load tasks.
-        //         </Typography>
-        //     )
-        // }
-
+        
         if (isLoading) {
             return (
                 <Box
@@ -196,7 +189,7 @@ export default function ProfileTasksModal({open, view, profileId, onClose, taskD
                                             noWrap
                                             sx={{ mt: 0.5 }}
                                         >
-                                            {location} • {item.status}
+                                            {location !== "" ? `${location} • ` : ""}{item.status}
                                         </Typography>
                                     </Box>
                                     <Typography
