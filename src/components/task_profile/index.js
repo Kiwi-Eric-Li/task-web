@@ -54,7 +54,9 @@ export default function TaskProfile(){
 
     const [taskerStats, setTaskerStats] = useState({
         completed: 0,
-        list: []
+        list: [],
+        ratingCount: 0,
+        averageRating: 0
     });
 
     const [posterStats, setPosterStats] = useState({
@@ -76,7 +78,9 @@ export default function TaskProfile(){
             if(res.code === 0){
                 setTaskerStats({
                     completed: res.data.length,
-                    list: res.data
+                    list: res.data,
+                    ratingCount: res.rating_count,
+                    averageRating: res.average_rating
                 });
             }
         }

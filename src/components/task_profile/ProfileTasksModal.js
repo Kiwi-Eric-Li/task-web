@@ -89,8 +89,6 @@ export default function ProfileTasksModal({open, view, profileId, onClose, taskD
         navigate(`/task/task-list?taskid=${taskId}`);
     }
 
-
-
     const renderContent = () => {
         
         if (isLoading) {
