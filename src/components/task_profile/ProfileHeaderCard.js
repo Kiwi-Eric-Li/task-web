@@ -125,7 +125,7 @@ export default function ProfileHeaderCard({role, profile, taskerStats, posterSta
                                         </Typography>
                                         <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
                                             <RatingSummary
-                                                value={taskerStats?.averageRating ?? null}
+                                                value={taskerStats?.averageRating ?? 0}
                                                 count={taskerStats?.ratingCount ?? 0}
                                             />
                                         </Box>

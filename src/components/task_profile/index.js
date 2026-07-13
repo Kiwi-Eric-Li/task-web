@@ -54,6 +54,7 @@ export default function TaskProfile(){
 
     const [taskerStats, setTaskerStats] = useState({
         completed: 0,
+        completion_rate: 0,
         list: [],
         ratingCount: 0,
         averageRating: 0
@@ -77,6 +78,7 @@ export default function TaskProfile(){
             
             if(res.code === 0){
                 setTaskerStats({
+                    completion_rate: res.data.length > 0 ? 1 : 0,
                     completed: res.data.length,
                     list: res.data,
                     ratingCount: res.rating_count,
