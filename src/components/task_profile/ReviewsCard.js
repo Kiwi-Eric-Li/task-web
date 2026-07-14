@@ -22,6 +22,7 @@ export default function ReviewsCard({ role, reviews, ratingSummary, loading = fa
 
     const [openAll, setOpenAll] = useState(false);
 
+
     return (
         <Paper elevation={0} variant="outlined" sx={{ p: 3, borderRadius: 3 }}>
             <Stack spacing={1.5}>

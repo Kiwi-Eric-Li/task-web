@@ -86,6 +86,14 @@ export default function TaskProfile(){
                 });
             }
         }
+
+        async function getTaskerReviews(){
+            const res = await request.get(`/tasks/${userid}/tasker-reviews`);
+            console.log("res====getTaskerReviews======", res);
+        }
+
+
+
         
         async function getTaskInfo(){
 
@@ -93,6 +101,7 @@ export default function TaskProfile(){
 
         getUserInfo();
         getCompletedList();
+        getTaskerReviews();
         getTaskInfo();
         
     }, []);

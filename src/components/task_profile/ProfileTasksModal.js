@@ -25,30 +25,6 @@ export default function ProfileTasksModal({open, view, profileId, onClose, taskD
         setTasks(taskData);
     }, [taskData]);
 
-
-
-    // const [tasks, setTasks] = useState([
-    //     {
-    //         budget: null,
-    //         budget_type: "fixed",
-    //         categories: ["Auto Services"],
-    //         comment_count: 2,
-    //         created_at: "Mon, 02 Feb 2026 09:26:24 GMT",
-    //         estimated_hours: 0,
-    //         expires_at: "Sat, 07 Mar 2026 09:10:00 GMT",
-    //         id: 514,
-    //         location: "Auckland, ,0616",
-    //         offer_count: 0,
-    //         poster_avatar_url: null,
-    //         poster_display_name: "lxf101",
-    //         schedule_time: "Thu, 05 Feb 2026 09:10:00 GMT",
-    //         status: "Open",
-    //         title: "test posting a task",
-    //         type: "offline",
-    //         updated_at: "Mon, 02 Feb 2026 09:26:24 GMT"
-    //     }
-    // ]);
-
     console.log("view====11111====", view);
 
     if(view === "posterPosted"){
