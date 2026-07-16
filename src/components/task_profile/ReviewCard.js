@@ -28,7 +28,7 @@ export default function ReviewCard({review, role}){
     const date = new Date(review.created_at).toLocaleDateString();
     const comment = review.comment ?? "";
 
-    const isCommentLong = comment.length > 140;
+    const isCommentLong = comment.length > 70;
     const isTitleLong = (review.task_title ?? "").length > 48;
     const shouldShowSeeMore = isCommentLong || isTitleLong;
 
@@ -40,7 +40,7 @@ export default function ReviewCard({review, role}){
                         <ButtonBase
                             sx={{borderRadius: '50%'}}
                             aria-label={`Open profile of ${targetName}`}
-                            onClick={() => navigate(`/task/profile/${targetId}`)}
+                            onClick={() => {navigate(`/task/profile/${targetId}`); window.location.reload();}}
                         >
                             <Avatar src={review.reviewer_avatar_url ?? undefined}>{initials}</Avatar>
                         </ButtonBase>
@@ -49,7 +49,7 @@ export default function ReviewCard({review, role}){
                         <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={2}>
                             <ButtonBase
                                 sx={{display: 'inline-flex', alignItems: 'center', gap: 1, borderRadius: 2, px: 0.5}}
-                                onClick={() => navigate(`/task/profile/${targetId}`)}
+                                onClick={() => {navigate(`/task/profile/${targetId}`); window.location.reload();}}
                             >
                                 <Typography fontWeight={600} sx={{lineHeight: 1.2}}>{targetName}</Typography>
                             </ButtonBase>
@@ -82,13 +82,13 @@ export default function ReviewCard({review, role}){
                 
                 {comment && (
                     <CardContent sx={{pt: 1, pb: 0.5}}>
-                        <Box sx={{pl: 2}}>
+                        <Box sx={{pl: 2, borderLeft: '3px solid rgb(206, 66, 87)'}}>
                             <Typography 
                                 variant="body2" 
                                 color="text.secondary" 
                                 sx={{
                                     display: '-webkit-box',
-                                    WebkitLineClamp: 3,
+                                    WebkitLineClamp: 2,
                                     WebkitBoxOrient: 'vertical',
                                     overflow: 'hidden',
                                     lineHeight: 1.6
@@ -99,7 +99,7 @@ export default function ReviewCard({review, role}){
                 <CardActions sx={{pt: 0.5, px: 2, pb: 2, mt: 'auto', justifyContent: 'flex-end'}}>
                     {
                         shouldShowSeeMore && (
-                            <Button size="small" onClick={() => setOpen(true)} aria-label="See full review">See more</Button>
+                            <Button sx={{textTransform: 'none'}} size="small" onClick={() => setOpen(true)} aria-label="See full review">See more</Button>
                         )
                     }
                 </CardActions>
