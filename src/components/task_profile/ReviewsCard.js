@@ -4,12 +4,18 @@ import {
   Stack,
   Typography,
   Skeleton,
-  Box,
   Grid,
-  Button
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent
 } from '@mui/material';
 import ReviewsIcon from '@mui/icons-material/Reviews';
+import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
+
 import RatingSummary from './RatingSummary';
+import ReviewCard from "./ReviewCard";
 
 
 export default function ReviewsCard({ role, reviews, ratingSummary, loading = false }){
@@ -70,23 +76,52 @@ export default function ReviewsCard({ role, reviews, ratingSummary, loading = fa
                                 </Grid>
                             ))
                          }
-
-
-
-
-
-
                         </Grid>) : reviews.length === 0 ? (
-                    <Paper variant="outlined" sx={{ borderRadius: 2, p: 3, textAlign: 'center' }}>
-                        <Typography variant="body2" color="text.secondary">
-                        No reviews yet...
-                        </Typography>
-                    </Paper>
-                    ) : (<div></div>)
+                        <Paper variant="outlined" sx={{ borderRadius: 2, p: 3, textAlign: 'center' }}>
+                            <Typography variant="body2" color="text.secondary">
+                            No reviews yet...
+                            </Typography>
+                        </Paper>
+                    ) : (
+                    <>
+                        <Grid container spacing={2}>
+                            {
+                                visible.map((r) => (
+                                    <Grid key={`${r.created_at}-${r.reviewer_userid}`} size={{xs: 12, md: 6}}>
+                                        <ReviewCard review={r} role={role} />
+                                    </Grid>
+                                ))
+                            }
+                        </Grid>
+                        {
+                            canShowMore && (
+                                <Stack alignItems="center" sx={{pt: 1}}>
+                                    <Button variant="outlined" size="small" onClick={() => setVisibleCount(n => Math.min(n + step, reviews.length))}>Show more</Button>
+                                </Stack>
+                            )
+                        }
+                    </>)
                 }
-
-
             </Stack>
+            <Dialog open={openAll} onClose={() => setOpenAll(false)} fullWidth maxWidth="md" scroll="paper" PaperProps={{sx: {borderRadius: 3}}}>
+                <DialogTitle sx={{pr: 6}}>
+                    All reviews ({reviews.length})
+                    <IconButton aria-label="close" onClick={() => setOpenAll(false)} sx={{position: 'absolute', right: 8, top: 8}}>
+                        <CloseIcon />
+                    </IconButton>
+                </DialogTitle>
+                <DialogContent dividers>
+                    <Grid container spacing={2}>
+                        {
+                            reviews.map((r) => (
+                                <Grid key={`${r.reviewer_userid}-${r.created_at}-all`} size={{xs: 12, md: 6}}>
+                                    <ReviewCard review={r} role={role} />
+                                </Grid>
+                            ))
+                        }
+                    </Grid>
+                </DialogContent>
+            </Dialog>
         </Paper>
     )
 }
