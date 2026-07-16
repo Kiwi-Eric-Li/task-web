@@ -22,32 +22,44 @@ export default function TaskProfile(){
     const {userid} = useParams();
     const [role, setRole] = useState('tasker');
     const [loadingProfile, setLoadingProfile] = useState(false);
-    const [tab, setTab] = useState({
-        poster_stats: {
-            posted_total: 1, 
-            hired_total: 0, 
-            completed: 0, 
-            completion_rate: 0, 
-            ratings_received_count: 0,
-            ratings_received_avg: null
-        },
-        reviews: {
-            rows: [], 
-            total: 0
-        },
-        role: "poster",
-        tasker_stats: null
+
+    const [taskerReviews, setTaskerReviews] = useState({
+        rows: [],
+        total: 0
     });
 
-    const ratingAvg =
-        role === 'tasker'
-        ? tab?.tasker_stats?.ratings_received_avg ?? null
-        : tab?.poster_stats?.ratings_received_avg ?? null;
+    const [posterReviews, setPosterReviews] = useState({
+        rows: [],
+        total: 0
+    })
 
-    const ratingCount =
-        role === 'tasker'
-        ? tab?.tasker_stats?.ratings_received_count ?? 0
-        : tab?.poster_stats?.ratings_received_count ?? 0;
+
+    // const [tab, setTab] = useState({
+    //     poster_stats: {
+    //         posted_total: 1, 
+    //         hired_total: 0, 
+    //         completed: 0, 
+    //         completion_rate: 0, 
+    //         ratings_received_count: 0,
+    //         ratings_received_avg: null
+    //     },
+    //     reviews: {
+    //         rows: [], 
+    //         total: 0
+    //     },
+    //     role: "poster",
+    //     tasker_stats: null
+    // });
+
+    // const ratingAvg =
+    //     role === 'tasker'
+    //     ? tab?.tasker_stats?.ratings_received_avg ?? null
+    //     : tab?.poster_stats?.ratings_received_avg ?? null;
+
+    // const ratingCount =
+    //     role === 'tasker'
+    //     ? tab?.tasker_stats?.ratings_received_count ?? 0
+    //     : tab?.poster_stats?.ratings_received_count ?? 0;
 
 
     const [profile, setProfile] = useState({});
@@ -89,7 +101,13 @@ export default function TaskProfile(){
 
         async function getTaskerReviews(){
             const res = await request.get(`/tasks/${userid}/tasker-reviews`);
-            console.log("res====getTaskerReviews======", res);
+            
+            if(res.code === 0){
+                setTaskerReviews({
+                    rows: res.data,
+                    total: res.data.length
+                });
+            }
         }
 
 
@@ -135,10 +153,11 @@ export default function TaskProfile(){
                                 </Stack>
 
                                 <AboutCard bio={profile?.bio ?? null} loading={loadingProfile} />
+                                {/* ratingSummary={{ value: ratingAvg, count: ratingCount }} */}
                                 <ReviewsCard
                                     role={role}
-                                    reviews={tab?.reviews.rows ?? []}
-                                    ratingSummary={{ value: ratingAvg, count: ratingCount }}
+                                    reviews={role === "tasker" ? taskerReviews.rows : posterReviews.rows}
+                                    ratingSummary={{ value: 0, count: 0 }}
                                 />    
                             </Stack>
                         </Grid>
