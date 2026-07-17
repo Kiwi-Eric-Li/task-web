@@ -21,12 +21,14 @@ import {
     DialogContent,
     Snackbar,
     Alert,
+    Stack
 } from '@mui/material';
 
 import {
     AssignmentOutlined,
     EventAvailable,
     Category as CategoryIcon,
+    CheckCircle,
     Close
 } from "@mui/icons-material";
 import { ThemeProvider } from '@mui/material/styles';
@@ -274,7 +276,7 @@ export default function TaskPublish(){
                 setOpenAlert(true);
                 setAlertType('success');
                 setAlertMsg(data.message);
-                navigate(`/task/task-list`);
+                setActiveStep(activeStep + 1);
             }
         }catch(e){
             console.error(e);
@@ -293,452 +295,479 @@ export default function TaskPublish(){
                     <Container maxWidth="lg">
                         <Card sx={{ boxShadow: theme.shadows[2], mx: '24px'}}>
                             <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                <CardContent>
-                                    <Typography variant="h5" fontWeight={700} align="center" mb={3}>
-                                        Create a New Task
-                                    </Typography>
-                                    <Stepper
-                                        activeStep={activeStep}
-                                        connector={<StepConnector sx={connectorSx} />}
-                                        alternativeLabel
-                                        sx={{ mb: 4 }}>
-                                        {steps.map((s) => (
-                                            <Step key={s.label}>
-                                                <StepLabel StepIconComponent={StepIcon}>{s.label}</StepLabel>
-                                            </Step>
-                                        ))}
-                                    </Stepper>
-                                    {activeStep === 0 && (
-                                        <Box
-                                            sx={{
-                                                width: "100%",
-                                                maxWidth: 900,
-                                                mx: "auto",
-                                                p: 3,
-                                                bgcolor: theme.palette.background.paper,
-                                            }}>
-                                            {/* ——— Header ——— */}
-                                            <Box display="flex" alignItems="center" mb={2}>
-                                                <AssignmentOutlined sx={{ color: theme.palette.primary.main, fontSize: 28 }} />
-                                                <Typography variant="h6" fontWeight={600} ml={1}>
-                                                    Task Details
-                                                </Typography>
-                                            </Box>
-
-                                            <Typography variant="body2" color="text.secondary" mb={3}>
-                                                Clear briefs attract better taskers. Describe exactly what needs doing.
-                                            </Typography>
-
-                                            
+                                { activeStep !== 3 && (
+                                    <CardContent>
+                                        <Typography variant="h5" fontWeight={700} align="center" mb={3}>
+                                            Create a New Task
+                                        </Typography>
+                                        <Stepper
+                                            activeStep={activeStep}
+                                            connector={<StepConnector sx={connectorSx} />}
+                                            alternativeLabel
+                                            sx={{ mb: 4 }}>
+                                            {steps.map((s) => (
+                                                <Step key={s.label}>
+                                                    <StepLabel StepIconComponent={StepIcon}>{s.label}</StepLabel>
+                                                </Step>
+                                            ))}
+                                        </Stepper>
+                                        {activeStep === 0 && (
                                             <Box
                                                 sx={{
-                                                    display: "grid",
-                                                    gridTemplateColumns: {
-                                                    xs: "1fr",
-                                                    sm: "4fr 8fr",
-                                                    },
-                                                    gap: 2,
+                                                    width: "100%",
+                                                    maxWidth: 900,
+                                                    mx: "auto",
+                                                    p: 3,
+                                                    bgcolor: theme.palette.background.paper,
                                                 }}>
-                                                {/* Task Type */}
-                                                <Box>
-                                                    <Typography variant="caption" color="text.secondary" gutterBottom>
-                                                        Where will the task be carried out?
+                                                {/* ——— Header ——— */}
+                                                <Box display="flex" alignItems="center" mb={2}>
+                                                    <AssignmentOutlined sx={{ color: theme.palette.primary.main, fontSize: 28 }} />
+                                                    <Typography variant="h6" fontWeight={600} ml={1}>
+                                                        Task Details
                                                     </Typography>
-                                                    <TextField
-                                                        select
-                                                        label="Task Type *"
-                                                        SelectProps={{ native: true }}
-                                                        fullWidth 
-                                                        value={taskType} 
-                                                        onChange={(e) => {
-                                                            setTaskType(e.target.value);
-                                                            // 切换时清除 suburb 状态
-                                                            setSelectedSuburb(null);
-                                                            setSelectedSuburbError('');
-                                                        }}
-                                                        sx={{ bgcolor: theme.palette.background.paper, mt: 2 }}>
-                                                        <option value="offline">On-site</option>
-                                                        <option value="remote">Remote</option>
-                                                    </TextField>
                                                 </Box>
-                                                {/* Task Title */}
-                                                <Box>
+
+                                                <Typography variant="body2" color="text.secondary" mb={3}>
+                                                    Clear briefs attract better taskers. Describe exactly what needs doing.
+                                                </Typography>
+
+                                                
+                                                <Box
+                                                    sx={{
+                                                        display: "grid",
+                                                        gridTemplateColumns: {
+                                                        xs: "1fr",
+                                                        sm: "4fr 8fr",
+                                                        },
+                                                        gap: 2,
+                                                    }}>
+                                                    {/* Task Type */}
+                                                    <Box>
+                                                        <Typography variant="caption" color="text.secondary" gutterBottom>
+                                                            Where will the task be carried out?
+                                                        </Typography>
+                                                        <TextField
+                                                            select
+                                                            label="Task Type *"
+                                                            SelectProps={{ native: true }}
+                                                            fullWidth 
+                                                            value={taskType} 
+                                                            onChange={(e) => {
+                                                                setTaskType(e.target.value);
+                                                                // 切换时清除 suburb 状态
+                                                                setSelectedSuburb(null);
+                                                                setSelectedSuburbError('');
+                                                            }}
+                                                            sx={{ bgcolor: theme.palette.background.paper, mt: 2 }}>
+                                                            <option value="offline">On-site</option>
+                                                            <option value="remote">Remote</option>
+                                                        </TextField>
+                                                    </Box>
+                                                    {/* Task Title */}
+                                                    <Box>
+                                                        <Typography variant="caption" color="text.secondary" gutterBottom>
+                                                            A short, punchy headline
+                                                        </Typography>
+                                                        <TextField
+                                                            label="Task Title *" 
+                                                            inputProps={{ maxLength: MAX_TITLE_LENGTH }}
+                                                            fullWidth
+                                                            value={taskTitle}
+                                                            onChange={(e) => {
+                                                                setTaskTitle(e.target.value);
+                                                                if (e.target.value.trim()) {
+                                                                    setTaskTitleError('');
+                                                                }
+                                                            }}
+                                                            error={!!taskTitleError}
+                                                            helperText={taskTitleError}
+                                                            sx={{ bgcolor: theme.palette.background.paper, mt: 2 }}
+                                                        />
+                                                    </Box>
+                                                </Box>
+                                                
+                                                <Box sx={{ gridColumn: "1 / -1" }}>
                                                     <Typography variant="caption" color="text.secondary" gutterBottom>
-                                                        A short, punchy headline
+                                                    List size, tools or special skills required
                                                     </Typography>
+                                                    
                                                     <TextField
-                                                        label="Task Title *" 
-                                                        inputProps={{ maxLength: MAX_TITLE_LENGTH }}
+                                                        inputProps={{ maxLength: MAX_DESCRIPTION_LENGTH }}
+                                                        label="Description *"
                                                         fullWidth
-                                                        value={taskTitle}
+                                                        multiline
+                                                        rows={6}
+                                                        value={taskDescription}
                                                         onChange={(e) => {
-                                                            setTaskTitle(e.target.value);
+                                                            setTaskDescription(e.target.value);
                                                             if (e.target.value.trim()) {
-                                                                setTaskTitleError('');
+                                                                setTaskDescriptionError('');
                                                             }
                                                         }}
-                                                        error={!!taskTitleError}
-                                                        helperText={taskTitleError}
-                                                        sx={{ bgcolor: theme.palette.background.paper, mt: 2 }}
+                                                        error={!!taskDescriptionError}
+                                                        helperText={taskDescriptionError}
+                                                        sx={{ bgcolor: theme.palette.background.paper, mt: 2 }}    
                                                     />
                                                 </Box>
                                             </Box>
-                                            
-                                            <Box sx={{ gridColumn: "1 / -1" }}>
-                                                <Typography variant="caption" color="text.secondary" gutterBottom>
-                                                List size, tools or special skills required
-                                                </Typography>
-                                                
-                                                <TextField
-                                                    inputProps={{ maxLength: MAX_DESCRIPTION_LENGTH }}
-                                                    label="Description *"
-                                                    fullWidth
-                                                    multiline
-                                                    rows={6}
-                                                    value={taskDescription}
-                                                    onChange={(e) => {
-                                                        setTaskDescription(e.target.value);
-                                                        if (e.target.value.trim()) {
-                                                            setTaskDescriptionError('');
-                                                        }
-                                                    }}
-                                                    error={!!taskDescriptionError}
-                                                    helperText={taskDescriptionError}
-                                                    sx={{ bgcolor: theme.palette.background.paper, mt: 2 }}    
-                                                />
-                                            </Box>
-                                        </Box>
-                                    )}
+                                        )}
 
-                                    {
-                                        activeStep === 1 && (
-                                            <Box
-                                                sx={{
-                                                    width: "100%",
-                                                    maxWidth: 900,
-                                                    mx: "auto",
-                                                    p: 3,
-                                                    bgcolor: theme.palette.background.paper,
-                                                }}>
+                                        {
+                                            activeStep === 1 && (
+                                                <Box
+                                                    sx={{
+                                                        width: "100%",
+                                                        maxWidth: 900,
+                                                        mx: "auto",
+                                                        p: 3,
+                                                        bgcolor: theme.palette.background.paper,
+                                                    }}>
+                                                        <Box display="flex" alignItems="center" mb={2}>
+                                                            <EventAvailable sx={{ color: theme.palette.primary.main, fontSize: 28 }} />
+                                                            <Typography variant="h6" fontWeight={600} ml={1}>
+                                                                Schedule & Budget
+                                                            </Typography>
+                                                        </Box>
+                                                        <Typography variant="body2" color="text.secondary" mb={3}>
+                                                            Pick any date/time within the next 6 months. Your task closes 30 days after the chosen start.
+                                                        </Typography>
+                                                        <Box
+                                                            sx={{
+                                                                    display: "grid",
+                                                                    gridTemplateColumns: {
+                                                                    xs: "1fr",
+                                                                    md: "1fr 1fr",
+                                                                },
+                                                                rowGap: 3,
+                                                                columnGap: 2,
+                                                            }}>
+                                                            {/* Preferred start date */}
+                                                            <Box>
+                                                                <Typography variant="caption" color="text.secondary" gutterBottom>
+                                                                    Preferred start date
+                                                                </Typography>
+                                                                <DatePicker
+                                                                    label="Date *"
+                                                                    value={selectedDate ? dayjs(selectedDate) : null}
+                                                                    minDate={today}
+                                                                    maxDate={maxFuture}
+                                                                    onChange={(newValue) => {
+                                                                        setSelectedDate(newValue);
+                                                                        if (newValue) {
+                                                                            setSelectedDateError('');
+                                                                        }
+                                                                    }}
+                                                                    slotProps={{
+                                                                        textField: {
+                                                                            fullWidth: true,
+                                                                            error: !!selectedDateError,
+                                                                            helperText: selectedDateError,
+                                                                            sx: {
+                                                                                bgcolor: theme.palette.background.paper,
+                                                                                mt: 2,
+                                                                                '& .MuiOutlinedInput-notchedOutline': { borderColor: 'black' },
+                                                                                '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'black' },
+                                                                                '& .Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'black' },
+                                                                            },
+                                                                        },
+                                                                    }}
+                                                                />
+                                                            </Box>
+                                                            {/* Earliest convenient time */}
+                                                            <Box>
+                                                                <Typography variant="caption" color="text.secondary" gutterBottom>
+                                                                    Earliest convenient time
+                                                                </Typography>
+                                                                <TimePicker
+                                                                    label="Time *"
+                                                                    ampm={false}
+                                                                    value={selectedTime}
+                                                                    onChange={(newValue) => {
+                                                                        setSelectedTime(newValue);
+                                                                        if (newValue) {
+                                                                            setSelectedTimeError('');
+                                                                        }
+                                                                    }}
+                                                                    slotProps={{
+                                                                        textField: {
+                                                                            fullWidth: true,
+                                                                            error: !!selectedTimeError,
+                                                                            helperText: selectedTimeError,
+                                                                            sx: {
+                                                                                bgcolor: theme.palette.background.paper,
+                                                                                mt: 2,
+                                                                                '& .MuiOutlinedInput-notchedOutline': { borderColor: 'black' },
+                                                                                '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'black' },
+                                                                                '& .Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                                                    borderColor: 'black',
+                                                                                },
+                                                                            },
+                                                                        },
+                                                                    }}
+                                                                />
+                                                            </Box>
+                                                            
+                                                            {/* Pricing type */}
+                                                            <Box>
+                                                                <Typography variant="caption" color="text.secondary" gutterBottom>
+                                                                    How will you pay?
+                                                                </Typography>
+                                                                <TextField
+                                                                    select
+                                                                    label="Pricing type *"
+                                                                    SelectProps={{ native: true }}
+                                                                    fullWidth
+                                                                    sx={{ bgcolor: theme.palette.background.paper, mt: 2 }}
+                                                                    value={pricingType ?? "Fixed"}
+                                                                    onChange={(e) => setPricingType(e.target.value)}
+                                                                >
+                                                                    <option value="Fixed">Fixed</option>
+                                                                    <option value="Hourly">Hourly</option>
+                                                                </TextField>
+                                                            </Box>
+                                                            
+                                                            {/* Estimated hours */}
+                                                            <Box>
+                                                                <Typography variant="caption" color="text.secondary" gutterBottom>
+                                                                    Estimated hours (optional)
+                                                                </Typography>
+                                                                <TextField
+                                                                    label="Estimated hours (optional)"
+                                                                    fullWidth
+                                                                    type="text"
+                                                                    value={estimatedHours}
+                                                                    onChange={(e) => {
+                                                                        const cleaned = e.target.value.replace(/[^\d]/g, "")
+                                                                        setEstimatedHours(cleaned);
+                                                                    }}
+                                                                    onKeyDown={(e) => {
+                                                                        const allowed = ["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab", "Home", "End"]
+                                                                        if (!/^\d$/.test(e.key) && !allowed.includes(e.key)) e.preventDefault()
+                                                                    }}
+                                                                    sx={{ bgcolor: theme.palette.background.paper, mt: 2 }}
+                                                                />
+                                                            </Box>
+                                                            
+                                                            {/* Budget (optional) */}
+                                                            <Box>
+                                                                <Typography variant="caption" color="text.secondary" gutterBottom>
+                                                                    Leave blank to let taskers quote
+                                                                </Typography>
+                                                                <TextField
+                                                                    label="Budget (optional)"
+                                                                    fullWidth
+                                                                    type="text"                                    
+                                                                    value={budget}
+                                                                    onChange={(e) => {
+                                                                        const cleaned = e.target.value.replace(/[^\d]/g, "");
+                                                                        setBudget(cleaned);
+                                                                    }}
+                                                                    onKeyDown={(e) => {
+                                                                        const allowed = ["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab", "Home", "End"];
+                                                                        if (!/^\d$/.test(e.key) && !allowed.includes(e.key)) e.preventDefault();
+                                                                    }}
+                                                                    inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
+                                                                    sx={{ bgcolor: theme.palette.background.paper, mt: 2 }}
+                                                                />
+                                                            </Box>
+                                                            
+                                                            {/* Location (offline only) */}
+                                                            {taskType === 'offline' && (
+                                                                <TaskLocationInput
+                                                                    setLatitude={setLatitude}
+                                                                    setLongitude={setLongitude}
+                                                                    selectedSuburb={selectedSuburb}
+                                                                    onPlaceSelect={handleSuburbChange}
+                                                                    error={selectedSuburbError}
+                                                                />
+                                                            )}
+
+                                                        </Box>
+                                                </Box>
+                                            )
+                                        }
+                                        {
+                                            activeStep === 2 && (
+                                                <Box 
+                                                    sx={{
+                                                        width: "100%",
+                                                        maxWidth: 900,
+                                                        mx: "auto",
+                                                        p: 3,
+                                                        bgcolor: theme.palette.background.paper,
+                                                    }}>
+                                                    
                                                     <Box display="flex" alignItems="center" mb={2}>
-                                                        <EventAvailable sx={{ color: theme.palette.primary.main, fontSize: 28 }} />
+                                                        <CategoryIcon sx={{ color: theme.palette.primary.main, fontSize: 28 }} />
                                                         <Typography variant="h6" fontWeight={600} ml={1}>
-                                                            Schedule & Budget
+                                                            Categories & Files
                                                         </Typography>
                                                     </Box>
                                                     <Typography variant="body2" color="text.secondary" mb={3}>
-                                                        Pick any date/time within the next 6 months. Your task closes 30 days after the chosen start.
+                                                        Help us match the right taskers – pick at least one category.
                                                     </Typography>
-                                                    <Box
-                                                        sx={{
-                                                                display: "grid",
-                                                                gridTemplateColumns: {
-                                                                xs: "1fr",
-                                                                md: "1fr 1fr",
-                                                            },
-                                                            rowGap: 3,
-                                                            columnGap: 2,
-                                                        }}>
-                                                        {/* Preferred start date */}
-                                                        <Box>
-                                                            <Typography variant="caption" color="text.secondary" gutterBottom>
-                                                                Preferred start date
-                                                            </Typography>
-                                                            <DatePicker
-                                                                label="Date *"
-                                                                value={selectedDate ? dayjs(selectedDate) : null}
-                                                                minDate={today}
-                                                                maxDate={maxFuture}
-                                                                onChange={(newValue) => {
-                                                                    setSelectedDate(newValue);
-                                                                    if (newValue) {
-                                                                        setSelectedDateError('');
-                                                                    }
-                                                                }}
-                                                                slotProps={{
-                                                                    textField: {
-                                                                        fullWidth: true,
-                                                                        error: !!selectedDateError,
-                                                                        helperText: selectedDateError,
-                                                                        sx: {
-                                                                            bgcolor: theme.palette.background.paper,
-                                                                            mt: 2,
-                                                                            '& .MuiOutlinedInput-notchedOutline': { borderColor: 'black' },
-                                                                            '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'black' },
-                                                                            '& .Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'black' },
-                                                                        },
-                                                                    },
-                                                                }}
+                                                    <Autocomplete
+                                                        multiple
+                                                        options={catList}
+                                                        getOptionLabel={(o) => o.title}
+                                                        value={selected}
+                                                        onChange={(event, newValue) => setSelected(newValue)}
+                                                        renderTags={(value, getTagProps) =>
+                                                            value.map((option, index) => (
+                                                            <Chip
+                                                                {...getTagProps({ index })}
+                                                                key={option.id}
+                                                                color="primary"
+                                                                label={
+                                                                <Typography variant="body1">
+                                                                    {option.title}
+                                                                </Typography>
+                                                                }
                                                             />
-                                                        </Box>
-                                                        {/* Earliest convenient time */}
-                                                        <Box>
-                                                            <Typography variant="caption" color="text.secondary" gutterBottom>
-                                                                Earliest convenient time
-                                                            </Typography>
-                                                            <TimePicker
-                                                                label="Time *"
-                                                                ampm={false}
-                                                                value={selectedTime}
-                                                                onChange={(newValue) => {
-                                                                    setSelectedTime(newValue);
-                                                                    if (newValue) {
-                                                                        setSelectedTimeError('');
-                                                                    }
-                                                                }}
-                                                                slotProps={{
-                                                                    textField: {
-                                                                        fullWidth: true,
-                                                                        error: !!selectedTimeError,
-                                                                        helperText: selectedTimeError,
-                                                                        sx: {
-                                                                            bgcolor: theme.palette.background.paper,
-                                                                            mt: 2,
-                                                                            '& .MuiOutlinedInput-notchedOutline': { borderColor: 'black' },
-                                                                            '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'black' },
-                                                                            '& .Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                                                                borderColor: 'black',
-                                                                            },
-                                                                        },
-                                                                    },
-                                                                }}
-                                                            />
-                                                        </Box>
-                                                        
-                                                        {/* Pricing type */}
-                                                        <Box>
-                                                            <Typography variant="caption" color="text.secondary" gutterBottom>
-                                                                How will you pay?
-                                                            </Typography>
+                                                            ))
+                                                        }
+                                                        renderInput={(params) => (
                                                             <TextField
-                                                                select
-                                                                label="Pricing type *"
-                                                                SelectProps={{ native: true }}
-                                                                fullWidth
+                                                                {...params}
+                                                                label="Categories *"
                                                                 sx={{ bgcolor: theme.palette.background.paper, mt: 2 }}
-                                                                value={pricingType ?? "Fixed"}
-                                                                onChange={(e) => setPricingType(e.target.value)}
-                                                            >
-                                                                <option value="Fixed">Fixed</option>
-                                                                <option value="Hourly">Hourly</option>
-                                                            </TextField>
-                                                        </Box>
-                                                        
-                                                        {/* Estimated hours */}
-                                                        <Box>
-                                                            <Typography variant="caption" color="text.secondary" gutterBottom>
-                                                                Estimated hours (optional)
-                                                            </Typography>
-                                                            <TextField
-                                                                label="Estimated hours (optional)"
-                                                                fullWidth
-                                                                type="text"
-                                                                value={estimatedHours}
-                                                                onChange={(e) => {
-                                                                    const cleaned = e.target.value.replace(/[^\d]/g, "")
-                                                                    setEstimatedHours(cleaned);
-                                                                }}
-                                                                onKeyDown={(e) => {
-                                                                    const allowed = ["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab", "Home", "End"]
-                                                                    if (!/^\d$/.test(e.key) && !allowed.includes(e.key)) e.preventDefault()
-                                                                }}
-                                                                sx={{ bgcolor: theme.palette.background.paper, mt: 2 }}
-                                                            />
-                                                        </Box>
-                                                        
-                                                        {/* Budget (optional) */}
-                                                        <Box>
-                                                            <Typography variant="caption" color="text.secondary" gutterBottom>
-                                                                Leave blank to let taskers quote
-                                                            </Typography>
-                                                            <TextField
-                                                                label="Budget (optional)"
-                                                                fullWidth
-                                                                type="text"                                    
-                                                                value={budget}
-                                                                onChange={(e) => {
-                                                                    const cleaned = e.target.value.replace(/[^\d]/g, "");
-                                                                    setBudget(cleaned);
-                                                                }}
-                                                                onKeyDown={(e) => {
-                                                                    const allowed = ["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab", "Home", "End"];
-                                                                    if (!/^\d$/.test(e.key) && !allowed.includes(e.key)) e.preventDefault();
-                                                                }}
-                                                                inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
-                                                                sx={{ bgcolor: theme.palette.background.paper, mt: 2 }}
-                                                            />
-                                                        </Box>
-                                                        
-                                                        {/* Location (offline only) */}
-                                                        {taskType === 'offline' && (
-                                                            <TaskLocationInput
-                                                                setLatitude={setLatitude}
-                                                                setLongitude={setLongitude}
-                                                                selectedSuburb={selectedSuburb}
-                                                                onPlaceSelect={handleSuburbChange}
-                                                                error={selectedSuburbError}
                                                             />
                                                         )}
+                                                    />
 
-                                                    </Box>
-                                            </Box>
-                                        )
-                                    }
-                                    {
-                                        activeStep === 2 && (
-                                            <Box 
-                                                sx={{
-                                                    width: "100%",
-                                                    maxWidth: 900,
-                                                    mx: "auto",
-                                                    p: 3,
-                                                    bgcolor: theme.palette.background.paper,
-                                                }}>
-                                                
-                                                <Box display="flex" alignItems="center" mb={2}>
-                                                    <CategoryIcon sx={{ color: theme.palette.primary.main, fontSize: 28 }} />
-                                                    <Typography variant="h6" fontWeight={600} ml={1}>
-                                                        Categories & Files
-                                                    </Typography>
-                                                </Box>
-                                                <Typography variant="body2" color="text.secondary" mb={3}>
-                                                    Help us match the right taskers – pick at least one category.
-                                                </Typography>
-                                                <Autocomplete
-                                                    multiple
-                                                    options={catList}
-                                                    getOptionLabel={(o) => o.title}
-                                                    value={selected}
-                                                    onChange={(event, newValue) => setSelected(newValue)}
-                                                    renderTags={(value, getTagProps) =>
-                                                        value.map((option, index) => (
-                                                        <Chip
-                                                            {...getTagProps({ index })}
-                                                            key={option.id}
-                                                            color="primary"
-                                                            label={
-                                                            <Typography variant="body1">
-                                                                {option.title}
-                                                            </Typography>
-                                                            }
-                                                        />
-                                                        ))
-                                                    }
-                                                    renderInput={(params) => (
-                                                        <TextField
-                                                            {...params}
-                                                            label="Categories *"
-                                                            sx={{ bgcolor: theme.palette.background.paper, mt: 2 }}
-                                                        />
-                                                    )}
-                                                />
-
-                                                <Box mb={2} sx={{mt: '20px'}}>
-                                                    <Typography variant="caption" color="text.secondary" gutterBottom>
-                                                        Upload Images / Videos (max {UPLOAD_LIMITS.maxTotal})
-                                                    </Typography>
-                                                    <Button
-                                                        variant="outlined"
-                                                        component="label"
-                                                        sx={{ borderColor: theme.palette.primary.main, color: theme.palette.primary.main, textTransform: "none", ml: 1 }}
-                                                        disabled={files.length >= UPLOAD_LIMITS.maxTotal}>
-                                                        Select Files
-                                                        <input
-                                                            hidden
-                                                            multiple
-                                                            type="file"
-                                                            accept="image/*,video/*"        // gates picker UI
-                                                            onChange={handleFilesChange}
-                                                        />
-                                                    </Button>
-                                                    <Typography variant="caption" sx={{ display: "block", mt: 1 }} color="text.secondary">
-                                                        {describeMediaLimits(UPLOAD_LIMITS)}
-                                                    </Typography>
-                                                    {fileError && (
-                                                        <Typography variant="caption" color="error" sx={{ display: "block", whiteSpace: "pre-line", mt: 1 }}>
-                                                            {fileError}
+                                                    <Box mb={2} sx={{mt: '20px'}}>
+                                                        <Typography variant="caption" color="text.secondary" gutterBottom>
+                                                            Upload Images / Videos (max {UPLOAD_LIMITS.maxTotal})
                                                         </Typography>
-                                                    )}
-                                                </Box>
-                                                
-                                                {files.length > 0 && (
-                                                    <Box display="flex" flexWrap="wrap" gap={2}>
-                                                        {files.map((f) => (
-                                                            <Box key={f.url} position="relative">
-                                                                {f.file.type.startsWith("image") ? (
-                                                                    <img
+                                                        <Button
+                                                            variant="outlined"
+                                                            component="label"
+                                                            sx={{ borderColor: theme.palette.primary.main, color: theme.palette.primary.main, textTransform: "none", ml: 1 }}
+                                                            disabled={files.length >= UPLOAD_LIMITS.maxTotal}>
+                                                            Select Files
+                                                            <input
+                                                                hidden
+                                                                multiple
+                                                                type="file"
+                                                                accept="image/*,video/*"        // gates picker UI
+                                                                onChange={handleFilesChange}
+                                                            />
+                                                        </Button>
+                                                        <Typography variant="caption" sx={{ display: "block", mt: 1 }} color="text.secondary">
+                                                            {describeMediaLimits(UPLOAD_LIMITS)}
+                                                        </Typography>
+                                                        {fileError && (
+                                                            <Typography variant="caption" color="error" sx={{ display: "block", whiteSpace: "pre-line", mt: 1 }}>
+                                                                {fileError}
+                                                            </Typography>
+                                                        )}
+                                                    </Box>
+                                                    
+                                                    {files.length > 0 && (
+                                                        <Box display="flex" flexWrap="wrap" gap={2}>
+                                                            {files.map((f) => (
+                                                                <Box key={f.url} position="relative">
+                                                                    {f.file.type.startsWith("image") ? (
+                                                                        <img
+                                                                            src={f.url}
+                                                                            alt={f.file.name}
+                                                                            style={{
+                                                                                width: 120,
+                                                                                height: 120,
+                                                                                objectFit: "cover",
+                                                                                borderRadius: 8,
+                                                                                border: "1px solid #e0e0e0",
+                                                                                cursor: "pointer",
+                                                                            }}
+                                                                            onClick={() => setLightbox(f.url)}
+                                                                        />
+                                                                    ) : (
+                                                                    <video
                                                                         src={f.url}
-                                                                        alt={f.file.name}
                                                                         style={{
-                                                                            width: 120,
-                                                                            height: 120,
-                                                                            objectFit: "cover",
-                                                                            borderRadius: 8,
-                                                                            border: "1px solid #e0e0e0",
-                                                                            cursor: "pointer",
+                                                                        width: 120,
+                                                                        height: 120,
+                                                                        objectFit: "cover",
+                                                                        borderRadius: 8,
+                                                                        border: "1px solid #e0e0e0",
+                                                                        cursor: "pointer",
                                                                         }}
                                                                         onClick={() => setLightbox(f.url)}
                                                                     />
-                                                                ) : (
-                                                                <video
-                                                                    src={f.url}
-                                                                    style={{
-                                                                    width: 120,
-                                                                    height: 120,
-                                                                    objectFit: "cover",
-                                                                    borderRadius: 8,
-                                                                    border: "1px solid #e0e0e0",
-                                                                    cursor: "pointer",
-                                                                    }}
-                                                                    onClick={() => setLightbox(f.url)}
-                                                                />
-                                                                )}
-                                                                <IconButton
-                                                                    size="small"
-                                                                    onClick={() => removeFile(f.url)}
-                                                                    sx={{
-                                                                        position: "absolute",
-                                                                        top: 2,
-                                                                        right: 2,
-                                                                        bgcolor: "rgba(0,0,0,0.6)",
-                                                                        color: "#fff",
-                                                                    }}>
-                                                                    <Close fontSize="small" />
-                                                                </IconButton>
-                                                            </Box>
-                                                        ))}
-                                                    </Box>
-                                                )}
-                                            </Box>
-                                        )
-                                    }
-
-
-                                    {/* ---- buttons ---- */}
-                                    <Box mt={4} display="flex" justifyContent="space-between">
-                                        <Button disabled={activeStep === 0} onClick={handleBack}>
-                                            Back
-                                        </Button>
-                                        {activeStep < steps.length - 1 ? (
-                                            <Button
-                                            variant="contained"
-                                            onClick={handleNext}
-                                            sx={{ bgcolor: theme.palette.primary.main }}
-                                            disabled={activeStep === 2 }>
-                                            Next
+                                                                    )}
+                                                                    <IconButton
+                                                                        size="small"
+                                                                        onClick={() => removeFile(f.url)}
+                                                                        sx={{
+                                                                            position: "absolute",
+                                                                            top: 2,
+                                                                            right: 2,
+                                                                            bgcolor: "rgba(0,0,0,0.6)",
+                                                                            color: "#fff",
+                                                                        }}>
+                                                                        <Close fontSize="small" />
+                                                                    </IconButton>
+                                                                </Box>
+                                                            ))}
+                                                        </Box>
+                                                    )}
+                                                </Box>
+                                            )
+                                        }
+                                        
+                                        {/* ---- buttons ---- */}
+                                        <Box mt={4} display="flex" justifyContent="space-between">
+                                            <Button disabled={activeStep === 0} onClick={handleBack} sx={{textTransform: 'none'}}>
+                                                Back
                                             </Button>
-                                        ) : (
-                                            <Button
-                                            variant="contained"
-                                            loading={isLoading}
-                                            sx={{ bgcolor: theme.palette.primary.main }}
-                                            disabled={!submitting && (activeStep === 2)}
-                                            onClick={() => handleSubmit()}>
-                                                Publish Task
+                                            {activeStep < steps.length - 1 ? (
+                                                <Button
+                                                    variant="contained"
+                                                    onClick={handleNext}
+                                                    sx={{ bgcolor: theme.palette.primary.main, textTransform: 'none' }}
+                                                    disabled={activeStep === 2 }>
+                                                Next
+                                                </Button>
+                                            ) : (
+                                                <Button
+                                                variant="contained"
+                                                loading={isLoading}
+                                                sx={{ bgcolor: theme.palette.primary.main, textTransform: 'none' }}
+                                                disabled={!submitting && (activeStep === 2)}
+                                                onClick={() => handleSubmit()}>
+                                                    Publish Task
+                                                </Button>
+                                            )}
+                                        </Box>
+                                    </CardContent>
+                                )}
+
+                                {activeStep === 3 && (
+                                    <CardContent sx={{textAlign: 'center'}}>
+                                        <CheckCircle sx={{ fontSize: 72, color: theme.palette.primary.main, mb: 2 }} />
+                                        <Typography variant="h5" fontWeight={700} align="center" mb={3}>
+                                            Your task is live!
+                                        </Typography>
+                                        <Typography variant="body1" color="text.secondary" mb={4} align="center">
+                                            Sit back and watch offers roll in - or post another one?
+                                        </Typography>
+                                        <Stack direction={{ xs: "column", sm: "row" }} spacing={2} justifyContent="center">
+                                            <Button 
+                                                sx={{textTransform: 'none'}}
+                                                variant="contained"
+                                                onClick={() => {
+                                                    window.location.reload();
+                                                }}
+                                            >
+                                                Post Another Task
                                             </Button>
-                                        )}
-                                    </Box>
-                                </CardContent>
+                                            <Button variant="outlined" href="/task/task-list" sx={{textTransform: 'none'}}>
+                                                Go to Dashboard
+                                            </Button>
+                                        </Stack>
+                                    </CardContent>
+                                )}
                                 
                                 <Dialog open={!!lightbox} onClose={() => setLightbox(null)} maxWidth="md">
                                     <DialogContent sx={{ p: 0 }}>
