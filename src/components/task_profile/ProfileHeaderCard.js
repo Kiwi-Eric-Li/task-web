@@ -175,7 +175,7 @@ export default function ProfileHeaderCard({role, profile, taskerStats, posterSta
                                     Posted
                                 </Typography>
                                 <Typography variant="h6" fontWeight={700}>
-                                    {posterStats?.posted_total ?? 0}
+                                    {posterStats?.posted_count ?? 0}
                                 </Typography>
                             </Paper>
                             {/* Hired */}
@@ -209,7 +209,7 @@ export default function ProfileHeaderCard({role, profile, taskerStats, posterSta
                                 aria-label="View hired tasks">
                                 <Typography variant="caption" color="text.secondary">Hired</Typography>
                                 <Typography variant="h6" fontWeight={700}>
-                                    {posterStats?.hired_total ?? 0}
+                                    {posterStats?.hided_count ?? 0}
                                 </Typography>
                             </Paper>
                             {/* Completed */}
@@ -243,7 +243,7 @@ export default function ProfileHeaderCard({role, profile, taskerStats, posterSta
                                 aria-label="View completed tasks">
                                 <Typography variant="caption" color="text.secondary">Completed</Typography>
                                 <Typography variant="h6" fontWeight={700}>
-                                    {posterStats?.completed ?? 0}
+                                    {posterStats?.completed_count ?? 0}
                                 </Typography>
                             </Paper>
                         </Box>

@@ -73,7 +73,12 @@ export default function TaskProfile(){
     });
 
     const [posterStats, setPosterStats] = useState({
-        
+        "posted_count": 0,
+        "posted_list": [],
+        "hided_count": 0,
+        "hided_list": [],
+        "completed_count": 0,
+        "completed_list": []
     });
     
     useEffect(() => {
@@ -110,6 +115,22 @@ export default function TaskProfile(){
             }
         }
 
+        async function getPosterTaskList(){
+            const res = await request.get(`/tasks/${userid}/poster-list`);
+
+            console.log("res=====getPosterTaskList======", res);
+            if(res.code === 0){
+                setPosterStats({
+                    "posted_count": res.data.postedTaskList.length,
+                    "posted_list": res.data.postedTaskList,
+                    "hided_count": res.data.hidedTaskList.length,
+                    "hided_list": res.data.hidedTaskList,
+                    "completed_count": res.data.completedTaskList.length,
+                    "completed_list": res.data.completedTaskList
+                });
+            }
+        }
+
 
 
         
@@ -121,6 +142,7 @@ export default function TaskProfile(){
         getCompletedList();
         getTaskerReviews();
         getTaskInfo();
+        getPosterTaskList();
         
     }, []);
 
