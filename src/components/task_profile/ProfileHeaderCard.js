@@ -262,7 +262,7 @@ export default function ProfileHeaderCard({role, profile, taskerStats, posterSta
                 view={openModal}
                 profileId={profile.id}
                 onClose={handleCloseModal} 
-                taskData={taskerStats.list}
+                taskData={role === "tasker" ? taskerStats.list : posterStats.list}
             />
         </Paper>
     )

@@ -22,21 +22,18 @@ export default function ProfileTasksModal({open, view, profileId, onClose, taskD
     const [tasks, setTasks] = useState([]);
 
     useEffect(()=>{
-        setTasks(taskData);
-    }, [taskData]);
+        
+        if(view === "posterPosted"){
+            setTasks(taskData[0].posted_list);
+        }else if(view === "posterHired"){
+            setTasks(taskData[1].hidedTaskList);
+        }else if(view === "posterCompleted"){
+            setTasks(taskData[2].completedTaskList);
+        }else if(view === "taskerCompleted"){
+            setTasks(taskData);
+        }
 
-    console.log("view====11111====", view);
-
-    if(view === "posterPosted"){
-        // 请求后端接口，获取 posterPosted 数据
-    }else if(view === "posterHired"){
-        // 请求后端接口，获取 posterHired 数据
-    }else if(view === "posterCompleted"){
-        // 请求后端接口，获取 posterCompleted 数据
-    }else if(view === "taskerCompleted"){
-        // 请求后端接口，获取 taskerCompleted 数据
-
-    }
+    }, [taskData, view]);
 
     const title =
         view === 'taskerCompleted'
@@ -118,7 +115,7 @@ export default function ProfileTasksModal({open, view, profileId, onClose, taskD
                         }
 
                         return (
-                            <Box
+                        <Box
                             key={item.id}
                             role='button'
                             tabIndex={0}

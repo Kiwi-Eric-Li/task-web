@@ -74,11 +74,19 @@ export default function TaskProfile(){
 
     const [posterStats, setPosterStats] = useState({
         "posted_count": 0,
-        "posted_list": [],
         "hided_count": 0,
-        "hided_list": [],
         "completed_count": 0,
-        "completed_list": []
+        "list": [
+            {
+                "posted_list": []
+            },
+            {
+                "hided_list": []
+            },
+            {
+                "completed_list": []
+            }
+        ]
     });
     
     useEffect(() => {
@@ -122,11 +130,19 @@ export default function TaskProfile(){
             if(res.code === 0){
                 setPosterStats({
                     "posted_count": res.data.postedTaskList.length,
-                    "posted_list": res.data.postedTaskList,
                     "hided_count": res.data.hidedTaskList.length,
-                    "hided_list": res.data.hidedTaskList,
                     "completed_count": res.data.completedTaskList.length,
-                    "completed_list": res.data.completedTaskList
+                    "list": [
+                        {
+                            "posted_list": res.data.postedTaskList
+                        },
+                        {
+                            "hided_list": res.data.hidedTaskList
+                        },
+                        {
+                            "completed_list": res.data.completedTaskList
+                        }
+                    ]
                 });
             }
         }
